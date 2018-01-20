@@ -46,11 +46,7 @@ def load(filepath):
         pass
     return (queue, done)
 
-# lawful magic
-def lawgic(stdscr):
-    return
-
-if __name__ == "__main__":
+def main(stdscr):
     storagedir = "/home/frozencemetery/.toodata"
     filename = "tood.org"
 
@@ -75,5 +71,22 @@ if __name__ == "__main__":
 
     queue, done = load(filepath)
 
-    curses.wrapper(lawgic)
+    # TODO handle stupid wide lines frig
+    rows, cols = stdscr.getmaxyx()
+    for t in queue[:rows]:
+        stdscr.addstr("- [ ] %s\n" % t)
+        pass
+
+    stdscr.addstr(rows - 1, 0, "& ")
+
+    while True:
+        stdscr.refresh()
+        c = stdscr.getch()
+        if c == ord('q'):
+            break
+        pass
+    return
+
+if __name__ == "__main__":
+    curses.wrapper(main)
     pass
