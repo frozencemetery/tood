@@ -1,7 +1,11 @@
 #!/usr/bin/env python2
 
-from git import Git
+import curses
 import os
+import sys
+
+from git import Git
+
 
 def store(git, filepath, done, queue, msg):
     data = ""
@@ -23,6 +27,28 @@ def store(git, filepath, done, queue, msg):
     git.add(filepath)
     git.commit("-m", msg)
     pass
+
+def load(filepath):
+    # TODO this can't deal with line wrapping
+    data = open(filepath, "r").read().split("\n")
+    queue = []
+    done = []
+    for line in data:
+        if len(line) <= 0:
+            continue
+        elif line.startswith("- [X] "):
+            done.append(line[len("- [X] "):])
+            continue
+        elif line.startswith("- [ ] "):
+            queue.append(line[len("- [ ] "):])
+            continue
+        print("Parse error on line: %s\n" % line)
+        pass
+    return (queue, done)
+
+# lawful magic
+def lawgic(stdscr):
+    return
 
 if __name__ == "__main__":
     storagedir = "/home/frozencemetery/.toodata"
@@ -47,21 +73,7 @@ if __name__ == "__main__":
         git.commit("-m", "Create new TOOD")
         pass
 
-    # TODO this can't deal with line wrapping
-    data = open(filepath, "r").read().split("\n")
-    queue = []
-    done = []
-    for line in data:
-        if len(line) <= 0:
-            continue
-        elif line.startswith("- [X] "):
-            done.append(line[len("- [X] "):])
-            continue
-        elif line.startswith("- [ ] "):
-            queue.append(line[len("- [ ] "):])
-            continue
-        print("Parse error on line: %s\n" % line)
-        pass
+    queue, done = load(filepath)
 
-    store(git, filepath, done, queue, "test")
+    curses.wrapper(lawgic)
     pass
