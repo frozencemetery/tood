@@ -7,7 +7,8 @@ import sys
 from git import Git
 
 
-def store(git, filepath, done, queue, msg):
+def store(git, filepath, done, queue, msg="Update"):
+    # TODO visual feedback on store
     data = ""
 
     if len(done) > 0:
@@ -46,6 +47,18 @@ def load(filepath):
         pass
     return (queue, done)
 
+def display_queue(stdscr, queue, rows):
+    stdscr.erase()
+    stdscr.move(0, 0)
+    for t in queue[:rows]:
+        stdscr.addstr("- [ ] %s\n" % t)
+        pass
+    return
+
+def prompt(stdscr, rows):
+    stdscr.addstr(rows - 1, 0, "& ")
+    return
+
 def main(stdscr):
     storagedir = "/home/frozencemetery/.toodata"
     filename = "tood.org"
@@ -73,17 +86,26 @@ def main(stdscr):
 
     # TODO handle stupid wide lines frig
     rows, cols = stdscr.getmaxyx()
-    for t in queue[:rows]:
-        stdscr.addstr("- [ ] %s\n" % t)
-        pass
-
-    stdscr.addstr(rows - 1, 0, "& ")
+    display_queue(stdscr, queue, rows)
+    prompt(stdscr, rows)
 
     while True:
         stdscr.refresh()
         c = stdscr.getch()
         if c == ord('q'):
             break
+        elif c == ord('w'):
+            store(git, filepath, done, queue)
+            pass
+        elif c == ord('c'):
+            stdscr.addstr("c ")
+            curses.echo()
+            desc = stdscr.getstr()
+            curses.noecho()
+            queue.append(desc)
+            display_queue(stdscr, queue, rows)
+            prompt(stdscr, rows)
+            pass
         pass
     return
 
