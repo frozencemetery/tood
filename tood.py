@@ -10,16 +10,12 @@ def store(git, filepath, done, queue, msg="Update"):
     # TODO visual feedback on store
     data = ""
 
-    if len(done) > 0:
-        data += "- [X] "
-        data += "\n- [X] ".join(done)
-        data += "\n"
+    for d in done:
+        data += "- [X] %s\n" % d
         pass
 
-    if len(queue) > 0:
-        data += "- [ ] "
-        data += "\n- [ ] ".join(queue)
-        data += "\n"
+    for q in queue:
+        data += "- [ ] %s\n" % q
         pass
 
     open(filepath, "w").write(data)
