@@ -84,6 +84,9 @@ def main(stdscr):
         elif c == curses.KEY_RESIZE:
             rows, cols = stdscr.getmaxyx()
             pass
+        elif c == ord('l'):
+            stdscr.clear()
+            pass
         elif c == ord('c'):
             stdscr.addstr("c ")
             curses.echo()
