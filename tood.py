@@ -93,11 +93,17 @@ def main(stdscr):
             pass
         elif c == ord('t'):
             # TODO display as done without removing until next write?
-            # TODO toggling of done things
             stdscr.addstr("t ")
             n = get_index(stdscr)
-            t = state["queue"].pop(n)
-            state["done"].insert(0, t)
+            if n < len(state["queue"]):
+                t = state["queue"].pop(n)
+                state["done"].insert(0, t)
+                pass
+            else:
+                n -= len(state["queue"])
+                t = state["done"].pop(n)
+                state["queue"].append(t)
+                pass
             display_state(stdscr, state, rows)
             prompt(stdscr, rows)
             pass
