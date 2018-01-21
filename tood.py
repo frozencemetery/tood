@@ -54,7 +54,7 @@ def get_index(stdscr):
     return n
 
 def main(stdscr):
-    storagedir = "/home/frozencemetery/.toodata"
+    storagedir = os.path.join(os.environ["HOME"], ".toodata")
     filename = "tood.json"
 
     if not os.path.exists(storagedir):
