@@ -25,13 +25,20 @@ def display_state(stdscr, state, rows):
     stdscr.erase()
     stdscr.move(0, 0)
     i = 0
-    # TODO handle more than can fit on the screen
     for t in state["queue"]:
-        stdscr.addstr("%s: [ ] %s\n" % (letters[i], t["text"]))
+        if i > rows - 1: # for the prompt
+            return
+
+        letter = letters[i] if i < len(letters) else ' '
+        stdscr.addstr("%s: [ ] %s\n" % (letter, t["text"]))
         i += 1
         pass
     for t in state["done"]:
-        stdscr.addstr("%s: [X] %s\n" % (letters[i], t["text"]))
+        if i > rows - 1: # for the prompt
+            return
+
+        letter = letters[i] if i < len(letters) else ' '
+        stdscr.addstr("%s: [X] %s\n" % (letter, t["text"]))
         i += 1
         pass
     return
