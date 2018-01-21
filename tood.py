@@ -3,19 +3,23 @@
 import curses
 import json
 import os
+import subprocess
 import sys
-
-from git import Git
 
 letters = "1234567890qwertyuiopasdfghjklzxcvbnm,."
 
-def store(git, filepath, state, msg="Update"):
+def cmd(*args):
+    DEVNULL = open(os.devnull, "w")
+    return subprocess.check_call(args, stdout=DEVNULL,
+                                 stderr=subprocess.STDOUT)
+
+def store(filepath, state, msg="Update"):
     # TODO visual feedback on store
 
     json.dump(state, open(filepath, "w"))
 
-    git.add(filepath)
-    git.commit("-m", msg)
+    cmd("git", "add", filepath)
+    cmd("git", "commit", "-m", msg)
     pass
 
 def load(filepath):
@@ -56,23 +60,22 @@ def main(stdscr):
     if not os.path.exists(storagedir):
         os.mkdir(storagedir)
         pass
+    os.chdir(storagedir)
 
-    git = Git(storagedir)
     try:
-        git.status()
+        cmd("git", "status")
         pass
-    except:
-        git.init()
+    except subprocess.CalledProcessError:
+        cmd("git", "init", ".")
         pass
 
-    filepath = os.path.join(storagedir, filename)
-    if not os.path.exists(filepath):
+    if not os.path.exists(filename):
         state = {"queue": [{"text": "Make some TOOD"}],
                  "done": [{"text": "Create list"}]}
-        store(git, filepath, state, "Create list")
+        store(filename, state, "Create list")
         pass
 
-    state = load(filepath)
+    state = load(filename)
     rows, cols = stdscr.getmaxyx()
 
     while True:
@@ -93,7 +96,7 @@ def main(stdscr):
             desc = stdscr.getstr()
             curses.noecho()
             state["queue"].append({"text": desc})
-            store(git, filepath, state, "Created new\n\n%s\n" % desc)
+            store(filename, state, "Created new\n\n%s\n" % desc)
             pass
         elif c == ord('t'):
             stdscr.addstr("t ")
@@ -101,14 +104,13 @@ def main(stdscr):
             if n < len(state["queue"]):
                 t = state["queue"].pop(n)
                 state["done"].insert(0, t)
-                store(git, filepath, state,
-                      "Completed item\n\n%s\n" % t["text"])
+                store(filename, state, "Completed item\n\n%s\n" % t["text"])
                 pass
             else:
                 n -= len(state["queue"])
                 t = state["done"].pop(n)
                 state["queue"].append(t)
-                store(git, filepath, state,
+                store(filename, state,
                       "Un-completed item\n\n%s\n" % t["text"])
                 pass
             pass
@@ -124,7 +126,7 @@ def main(stdscr):
 
             state["queue"].insert(tgt_ind, t)
 
-            store(git, filepath, state,
+            store(filename, state,
                   "Adjusted order of item\n\n%s\n" % t["text"])
             pass
         elif c in [ord('?'), ord('h')]:
