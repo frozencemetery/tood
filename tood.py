@@ -86,6 +86,11 @@ def main(stdscr):
         c = stdscr.getch()
         if c == ord('q'):
             break
+        elif c == curses.KEY_RESIZE:
+            rows, cols = stdscr.getmaxyx()
+            display_state(stdscr, state, rows)
+            prompt(stdscr, rows)
+            pass
         elif c == ord('w'):
             store(git, filepath, state)
             pass
