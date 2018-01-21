@@ -64,6 +64,13 @@ def prompt(stdscr, rows):
     stdscr.addstr(rows - 1, 0, "& ")
     return
 
+def get_index(stdscr):
+    n = stdscr.getch() - ord('0')
+    if n == 0:
+        n = 10
+        pass
+    return n - 1
+
 def main(stdscr):
     storagedir = "/home/frozencemetery/.toodata"
     filename = "tood.org"
@@ -114,12 +121,24 @@ def main(stdscr):
         elif c == ord('t'):
             # TODO display as done without removing until next write?
             stdscr.addstr("t ")
-            n = stdscr.getch() - ord('0')
-            if n == 0:
-                n = 10
-                pass
-            t = queue.pop(n - 1)
+            n = get_index(stdscr)
+            t = queue.pop(n)
             done.append(t)
+            display_queue(stdscr, queue, rows)
+            prompt(stdscr, rows)
+            pass
+        elif c == ord('m'):
+            stdscr.addstr("m ")
+
+            cur_ind = get_index(stdscr)
+            stdscr.addstr("%s " % str(cur_ind + 1)[-1])
+
+            tgt_ind = get_index(stdscr)
+
+            t = queue.pop(cur_ind)
+
+            queue.insert(tgt_ind, t)
+
             display_queue(stdscr, queue, rows)
             prompt(stdscr, rows)
             pass
