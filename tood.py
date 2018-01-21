@@ -41,9 +41,6 @@ def display_state(stdscr, state, rows):
         stdscr.addstr("%s: [X] %s\n" % (letter, t["text"]))
         i += 1
         pass
-    return
-
-def prompt(stdscr, rows):
     stdscr.addstr(rows - 1, 0, "& ")
     return
 
@@ -79,7 +76,6 @@ def main(stdscr):
     # TODO handle stupid wide lines frig
     rows, cols = stdscr.getmaxyx()
     display_state(stdscr, state, rows)
-    prompt(stdscr, rows)
 
     while True:
         stdscr.refresh()
@@ -89,10 +85,6 @@ def main(stdscr):
         elif c == curses.KEY_RESIZE:
             rows, cols = stdscr.getmaxyx()
             display_state(stdscr, state, rows)
-            prompt(stdscr, rows)
-            pass
-        elif c == ord('w'):
-            store(git, filepath, state)
             pass
         elif c == ord('c'):
             stdscr.addstr("c ")
@@ -100,8 +92,8 @@ def main(stdscr):
             desc = stdscr.getstr()
             curses.noecho()
             state["queue"].append({"text": desc})
+            store(git, filepath, state, "Created new\n\n%s\n" % desc)
             display_state(stdscr, state, rows)
-            prompt(stdscr, rows)
             pass
         elif c == ord('t'):
             # TODO display as done without removing until next write?
@@ -110,14 +102,17 @@ def main(stdscr):
             if n < len(state["queue"]):
                 t = state["queue"].pop(n)
                 state["done"].insert(0, t)
+                store(git, filepath, state,
+                      "Completed item\n\n%s\n" % t["text"])
                 pass
             else:
                 n -= len(state["queue"])
                 t = state["done"].pop(n)
                 state["queue"].append(t)
+                store(git, filepath, state,
+                      "Un-completed item\n\n%s\n" % t["text"])
                 pass
             display_state(stdscr, state, rows)
-            prompt(stdscr, rows)
             pass
         elif c == ord('m'):
             stdscr.addstr("m ")
@@ -132,7 +127,8 @@ def main(stdscr):
             state["queue"].insert(tgt_ind, t)
 
             display_state(stdscr, state, rows)
-            prompt(stdscr, rows)
+            store(git, filepath, state,
+                  "Adjusted order of item\n\n%s\n" % t["text"])
             pass
         pass
     return
