@@ -7,7 +7,7 @@ import sys
 
 from git import Git
 
-letters = "1234567890qwertyuiopasdfghjklzxcvbnm"
+letters = "1234567890qwertyuiopasdfghjklzxcvbnm,."
 
 def store(git, filepath, state, msg="Update"):
     # TODO visual feedback on store
@@ -126,6 +126,11 @@ def main(stdscr):
 
             store(git, filepath, state,
                   "Adjusted order of item\n\n%s\n" % t["text"])
+            pass
+        elif c in [ord('?'), ord('h')]:
+            stdscr.addstr(rows - 1, 0,
+                          "[q]uit [c]reate [t]oggle [m]ove redraw[l] <ret>")
+            stdscr.getch()
             pass
         pass
     return
