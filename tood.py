@@ -6,7 +6,6 @@ import sys
 
 from git import Git
 
-
 def store(git, filepath, done, queue, msg="Update"):
     # TODO visual feedback on store
     data = ""
@@ -50,8 +49,18 @@ def load(filepath):
 def display_queue(stdscr, queue, rows):
     stdscr.erase()
     stdscr.move(0, 0)
+    i = 1
     for t in queue[:rows]:
-        stdscr.addstr("- [ ] %s\n" % t)
+        stdscr.addstr("%s: [ ] %s\n" % (str(i), t))
+        if i == 0:
+            i = ' '
+            pass
+        elif i == 9:
+            i = 0
+            pass
+        elif i != ' ':
+            i += 1
+            pass
         pass
     return
 
