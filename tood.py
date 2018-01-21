@@ -111,6 +111,18 @@ def main(stdscr):
             display_queue(stdscr, queue, rows)
             prompt(stdscr, rows)
             pass
+        elif c == ord('t'):
+            # TODO display as done without removing until next write?
+            stdscr.addstr("t ")
+            n = stdscr.getch() - ord('0')
+            if n == 0:
+                n = 10
+                pass
+            t = queue.pop(n - 1)
+            done.append(t)
+            display_queue(stdscr, queue, rows)
+            prompt(stdscr, rows)
+            pass
         pass
     return
 
