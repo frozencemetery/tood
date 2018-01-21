@@ -22,6 +22,7 @@ def load(filepath):
     return json.load(open(filepath, "r"))
 
 def display_state(stdscr, state, rows):
+    # TODO handle stupid wide lines frig
     stdscr.erase()
     stdscr.move(0, 0)
     i = 0
@@ -72,19 +73,16 @@ def main(stdscr):
         pass
 
     state = load(filepath)
-
-    # TODO handle stupid wide lines frig
     rows, cols = stdscr.getmaxyx()
-    display_state(stdscr, state, rows)
 
     while True:
+        display_state(stdscr, state, rows)
         stdscr.refresh()
         c = stdscr.getch()
         if c == ord('q'):
             break
         elif c == curses.KEY_RESIZE:
             rows, cols = stdscr.getmaxyx()
-            display_state(stdscr, state, rows)
             pass
         elif c == ord('c'):
             stdscr.addstr("c ")
@@ -93,10 +91,8 @@ def main(stdscr):
             curses.noecho()
             state["queue"].append({"text": desc})
             store(git, filepath, state, "Created new\n\n%s\n" % desc)
-            display_state(stdscr, state, rows)
             pass
         elif c == ord('t'):
-            # TODO display as done without removing until next write?
             stdscr.addstr("t ")
             n = get_index(stdscr)
             if n < len(state["queue"]):
@@ -112,7 +108,6 @@ def main(stdscr):
                 store(git, filepath, state,
                       "Un-completed item\n\n%s\n" % t["text"])
                 pass
-            display_state(stdscr, state, rows)
             pass
         elif c == ord('m'):
             stdscr.addstr("m ")
@@ -126,7 +121,6 @@ def main(stdscr):
 
             state["queue"].insert(tgt_ind, t)
 
-            display_state(stdscr, state, rows)
             store(git, filepath, state,
                   "Adjusted order of item\n\n%s\n" % t["text"])
             pass
