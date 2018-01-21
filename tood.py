@@ -7,6 +7,8 @@ import sys
 
 from git import Git
 
+letters = "1234567890qwertyuiopasdfghjklzxcvbnm"
+
 def store(git, filepath, state, msg="Update"):
     # TODO visual feedback on store
 
@@ -19,25 +21,18 @@ def store(git, filepath, state, msg="Update"):
 def load(filepath):
     return json.load(open(filepath, "r"))
 
-def inc_ind(i):
-    if i == 9:
-        return 0
-    elif i != ' ':
-        return i + 1
-    return i        
-
 def display_state(stdscr, state, rows):
     stdscr.erase()
     stdscr.move(0, 0)
-    i = 1
+    i = 0
     # TODO handle more than can fit on the screen
     for t in state["queue"]:
-        stdscr.addstr("%s: [ ] %s\n" % (str(i), t["text"]))
-        i = inc_ind(i)
+        stdscr.addstr("%s: [ ] %s\n" % (letters[i], t["text"]))
+        i += 1
         pass
     for t in state["done"]:
-        stdscr.addstr("%s: [X] %s\n" % (str(i), t["text"]))
-        i = inc_ind(i)
+        stdscr.addstr("%s: [X] %s\n" % (letters[i], t["text"]))
+        i += 1
         pass
     return
 
@@ -46,11 +41,8 @@ def prompt(stdscr, rows):
     return
 
 def get_index(stdscr):
-    n = stdscr.getch() - ord('0')
-    if n == 0:
-        n = 10
-        pass
-    return n - 1
+    n = letters.index(chr(stdscr.getch()))
+    return n
 
 def main(stdscr):
     storagedir = "/home/frozencemetery/.toodata"
@@ -113,7 +105,7 @@ def main(stdscr):
             stdscr.addstr("m ")
 
             cur_ind = get_index(stdscr)
-            stdscr.addstr("%s " % str(cur_ind + 1)[-1])
+            stdscr.addstr("%s " % letters[cur_ind])
 
             tgt_ind = get_index(stdscr)
 
