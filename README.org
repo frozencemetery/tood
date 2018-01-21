@@ -1,0 +1,10 @@
+* TOOD
+
+tood is a simple curses application for managing a todo list.  This is alpha
+quality software and I may never need it to be anything more.
+
+The program needs to run on my phone.  The easiest way to do this is Python
+under Termux.
+
+The list is backed on version control (git) and all operations trigger a
+commit, so data loss is unlikely.
