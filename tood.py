@@ -31,7 +31,7 @@ def display_state(stdscr, state, rows):
     stdscr.move(0, 0)
     i = 0
     for t in state["queue"]:
-        if i > rows - 1: # for the prompt
+        if i > rows - 2: # for the prompt
             return
 
         letter = letters[i] if i < len(letters) else ' '
@@ -39,7 +39,7 @@ def display_state(stdscr, state, rows):
         i += 1
         pass
     for t in state["done"]:
-        if i > rows - 1: # for the prompt
+        if i > rows - 2: # for the prompt
             return
 
         letter = letters[i] if i < len(letters) else ' '
