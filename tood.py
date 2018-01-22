@@ -25,7 +25,7 @@ def store(filepath, state, msg="Update"):
 def load(filepath):
     return json.load(open(filepath, "r"))
 
-def display_state(stdscr, state, rows):
+def display_state(stdscr, state, rows, cols):
     # TODO handle stupid wide lines frig
     stdscr.erase()
     stdscr.move(0, 0)
@@ -35,7 +35,7 @@ def display_state(stdscr, state, rows):
             return
 
         letter = letters[i] if i < len(letters) else ' '
-        stdscr.addstr("%s: [ ] %s\n" % (letter, t["text"]))
+        stdscr.addnstr("%s: [ ] %s\n" % (letter, t["text"]), cols)
         i += 1
         pass
     for t in state["done"]:
@@ -43,10 +43,11 @@ def display_state(stdscr, state, rows):
             return
 
         letter = letters[i] if i < len(letters) else ' '
-        stdscr.addstr("%s: [X] %s\n" % (letter, t["text"]))
+        stdscr.addnstr("%s: [X] %s\n" % (letter, t["text"]), cols)
         i += 1
         pass
-    stdscr.addstr(rows - 1, 0, "& ")
+    # can't paint bottom right
+    stdscr.addnstr(rows - 1, 0, "& ", cols - 1)
     return
 
 def get_index(stdscr):
@@ -79,7 +80,7 @@ def main(stdscr):
     rows, cols = stdscr.getmaxyx()
 
     while True:
-        display_state(stdscr, state, rows)
+        display_state(stdscr, state, rows, cols)
         stdscr.refresh()
         c = stdscr.getch()
         if c == ord('q'):
@@ -91,7 +92,7 @@ def main(stdscr):
             stdscr.clear()
             pass
         elif c == ord('c'):
-            stdscr.addstr("c ")
+            stdscr.addnstr("c ", cols)
             curses.echo()
             desc = stdscr.getstr()
             curses.noecho()
@@ -99,7 +100,7 @@ def main(stdscr):
             store(filename, state, "Created new\n\n%s\n" % desc)
             pass
         elif c == ord('t'):
-            stdscr.addstr("t ")
+            stdscr.addnstr("t ", cols)
             n = get_index(stdscr)
             if n < len(state["queue"]):
                 t = state["queue"].pop(n)
@@ -115,10 +116,10 @@ def main(stdscr):
                 pass
             pass
         elif c == ord('m'):
-            stdscr.addstr("m ")
+            stdscr.addnstr("m ", cols)
 
             cur_ind = get_index(stdscr)
-            stdscr.addstr("%s " % letters[cur_ind])
+            stdscr.addnstr("%s " % letters[cur_ind], cols)
 
             tgt_ind = get_index(stdscr)
 
@@ -130,8 +131,9 @@ def main(stdscr):
                   "Adjusted order of item\n\n%s\n" % t["text"])
             pass
         elif c in [ord('?'), ord('h')]:
-            stdscr.addstr(rows - 1, 0,
-                          "[q]uit [c]reate [t]oggle [m]ove redraw[l] <ret>")
+            stdscr.addnstr(rows - 1, 0,
+                           "[q]uit [c]reate [t]oggle [m]ove redraw[l] <ret> ",
+                           cols - 1) # can't paint bottom right
             stdscr.getch()
             pass
         pass
