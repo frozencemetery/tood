@@ -14,8 +14,6 @@ def cmd(*args):
                                  stderr=subprocess.STDOUT)
 
 def store(filepath, state, msg="Update"):
-    # TODO visual feedback on store
-
     json.dump(state, open(filepath, "w"))
 
     cmd("git", "add", filepath)
@@ -26,7 +24,6 @@ def load(filepath):
     return json.load(open(filepath, "r"))
 
 def display_state(stdscr, state, rows, cols):
-    # TODO handle stupid wide lines frig
     stdscr.erase()
     stdscr.move(0, 0)
     i = 0
@@ -78,10 +75,14 @@ def main(stdscr):
 
     state = load(filename)
     rows, cols = stdscr.getmaxyx()
-
+    skip_refresh = False
     while True:
-        display_state(stdscr, state, rows, cols)
-        stdscr.refresh()
+        if not skip_refresh:
+            display_state(stdscr, state, rows, cols)
+            stdscr.refresh()
+            pass
+        skip_refresh = False
+
         c = stdscr.getch()
         if c == ord('q'):
             break
@@ -132,9 +133,14 @@ def main(stdscr):
             pass
         elif c in [ord('?'), ord('h')]:
             stdscr.addnstr(rows - 1, 0,
-                           "[q]uit [c]reate [t]oggle [m]ove redraw[l] <ret> ",
+                           "[q]uit [c]reate [t]oggle [m]ove redraw[l] & ",
                            cols - 1) # can't paint bottom right
-            stdscr.getch()
+            skip_refresh = True
+            pass
+        else:
+            # can't paint bottom right
+            stdscr.addnstr(rows - 1, 0, "Whuff-whuff! & ", cols - 1)
+            skip_refresh = True
             pass
         pass
     return
