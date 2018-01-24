@@ -23,6 +23,12 @@ def store(filepath, state, msg="Update"):
 def load(filepath):
     return json.load(open(filepath, "r"))
 
+def update_prompt(stdscr, rows, cols, p):
+    # can't paint bottom right
+    stdscr.move(rows - 1, 0)
+    stdscr.clrtoeol()
+    return stdscr.addnstr(p, cols - 1)
+
 def display_state(stdscr, state, rows, cols):
     stdscr.erase()
     stdscr.move(0, 0)
@@ -43,9 +49,8 @@ def display_state(stdscr, state, rows, cols):
         stdscr.addnstr("%s: [X] %s\n" % (letter, t["text"]), cols)
         i += 1
         pass
-    # can't paint bottom right
-    stdscr.addnstr(rows - 1, 0, "& ", cols - 1)
-    return
+
+    return update_prompt(stdscr, rows, cols, "& ")
 
 def get_index(stdscr):
     n = letters.index(chr(stdscr.getch()))
@@ -132,14 +137,12 @@ def main(stdscr):
                   "Adjusted order of item\n\n%s\n" % t["text"])
             pass
         elif c in [ord('?'), ord('h')]:
-            stdscr.addnstr(rows - 1, 0,
-                           "[q]uit [c]reate [t]oggle [m]ove redraw[l] & ",
-                           cols - 1) # can't paint bottom right
+            update_prompt(stdscr, rows, cols,
+                          "[q]uit [c]reate [t]oggle [m]ove redraw[l] & ")
             skip_refresh = True
             pass
         else:
-            # can't paint bottom right
-            stdscr.addnstr(rows - 1, 0, "Whuff-whuff! & ", cols - 1)
+            update_prompt(stdscr, rows, cols, "Whuff-whuff! & ")
             skip_refresh = True
             pass
         pass
