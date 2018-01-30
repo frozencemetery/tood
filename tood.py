@@ -52,6 +52,35 @@ def display_state(stdscr, state, rows, cols):
 
     return update_prompt(stdscr, rows, cols, "& ")
 
+def display_help(stdscr, rows):
+    helps = [
+        "(?h)elp",
+        "(q)uit",
+        "(c)reate",
+        "(t)oggle #",
+        "(m)ove # #",
+        "(l) refresh",
+        "press any key to continue\n",
+    ]
+    if len(helps) < rows:
+        disp = "\n".join(helps)
+        pass
+    else:
+        disp = "  ".join(helps)
+        pass
+
+    stdscr.erase()
+    stdscr.move(0, 0)
+    stdscr.addstr(disp)
+
+    c = stdscr.getch()
+    # hack: forward back to main loop if not alphanumeric
+    # allows us to not discard a refresh event
+    if c == curses.KEY_RESIZE:
+        curses.ungetch(c)
+        pass
+    return
+
 def get_index(stdscr):
     n = letters.index(chr(stdscr.getch()))
     return n
@@ -137,9 +166,7 @@ def main(stdscr):
                   "Adjusted order of item\n\n%s\n" % t["text"])
             pass
         elif c in [ord('?'), ord('h')]:
-            update_prompt(stdscr, rows, cols,
-                          "[q]uit [c]reate [t]oggle [m]ove redraw[l] & ")
-            skip_refresh = True
+            display_help(stdscr, rows)
             pass
         else:
             update_prompt(stdscr, rows, cols, "Whuff-whuff! & ")
