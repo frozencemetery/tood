@@ -35,7 +35,7 @@ def display_state(stdscr, state, rows, cols):
     i = 0
     for t in state["queue"]:
         if i > rows - 2: # for the prompt
-            return
+            break
 
         letter = letters[i] if i < len(letters) else ' '
         stdscr.addnstr("%s: [ ] %s\n" % (letter, t["text"]), cols)
@@ -43,7 +43,7 @@ def display_state(stdscr, state, rows, cols):
         pass
     for t in state["done"]:
         if i > rows - 2: # for the prompt
-            return
+            break
 
         letter = letters[i] if i < len(letters) else ' '
         stdscr.addnstr("%s: [X] %s\n" % (letter, t["text"]), cols)
