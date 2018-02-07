@@ -39,3 +39,8 @@ letter in the future.
 *** tood.py
 
 This is the main program.  Run this; press =h= or =?= for help.
+
+*** debuglisten.py
+
+This is a simple event listener for curses.  It's useful for determining what
+"keys" curses presents in response to various actions.
