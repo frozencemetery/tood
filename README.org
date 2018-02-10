@@ -18,14 +18,20 @@ FHS, just do
   ./tood.py
 #+END_SRC
 
-However, Termux doesn't put things there.  Shebangs won't work right because
-they require hardcoding paths.  I recommend defining an alias for this:
+For mobile deployment, it's a bit more complicated.  It may work with other
+things, but I use a Termux system.  This needs both python2 and git installed.
+Prior to usage, you'll need to set up git (i.e., set user.name and
+user.email); otherwise, the git operations will somewhat mysteriously bomb
+out.
+
+However, shebangs won't work right because they require hardcoding paths.  I
+recommend defining an alias for this:
 
 #+BEGIN_SRC sh
   echo >> ~/.bashrc <<EOF
   function t() {
       cd ~/tood
-      python2 tood.py
+      python tood.py
   }
   EOF
   source ~/.bashrc
