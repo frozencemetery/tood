@@ -50,3 +50,16 @@ This is the main program.  Run this; press =h= or =?= for help.
 
 This is a simple event listener for curses.  It's useful for determining what
 "keys" curses presents in response to various actions.
+
+** Rejected ideas
+
+*** Use a better language
+
+Originally I wanted to do this in Rust, but it's not available for Termux
+(yet?).
+
+*** Use a git library
+
+Actually tried this one; removed it in
+ce75f9b25eab8f26fc52875e3237d9057dc738a8.  Neither GitPython nor virtualenv
+are packaged for Termux.
