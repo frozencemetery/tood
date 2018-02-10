@@ -14,7 +14,7 @@ def cmd(*args):
                                  stderr=subprocess.STDOUT)
 
 def store(filepath, state, msg="Update"):
-    json.dump(state, open(filepath, "w"))
+    json.dump(state, open(filepath, "w"), indent=4)
 
     cmd("git", "add", filepath)
     cmd("git", "commit", "-m", msg)
