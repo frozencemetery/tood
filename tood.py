@@ -224,6 +224,7 @@ def main(stdscr):
             pass
         elif c in [ord('?'), ord('h')]:
             display_help(stdscr, rows)
+            display_state(stdscr, state, rows, cols, offset)
             pass
         else:
             update_prompt(stdscr, rows, cols, "Whuff-whuff! & ")
