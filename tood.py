@@ -76,6 +76,7 @@ def display_help(stdscr, rows):
         "(t)oggle #",
         "(m)ove # #",
         "(l) refresh",
+        "drag to scroll, or uparrow/downarrow",
         "press any key to continue\n",
     ]
     if len(helps) < rows:
