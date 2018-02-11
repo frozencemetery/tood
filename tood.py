@@ -117,33 +117,39 @@ def main(stdscr):
 
     state = load(filename)
     rows, cols = stdscr.getmaxyx()
-    skip_refresh = False
-    while True:
-        if not skip_refresh:
-            display_state(stdscr, state, rows, cols)
-            stdscr.refresh()
-            pass
-        skip_refresh = False
+    display_state(stdscr, state, rows, cols)
 
+    while True:
         c = stdscr.getch()
         if c == ord('q'):
             break
         elif c == curses.KEY_RESIZE:
+            # TODO don't redraw the entire screen here
             rows, cols = stdscr.getmaxyx()
+            stdscr.erase()
+            display_state(stdscr, state, rows, cols)
             pass
         elif c == ord('l'):
             stdscr.clear()
+            display_state(stdscr, state, rows, cols)
             pass
         elif c == ord('c'):
-            stdscr.addnstr("c ", cols)
+            update_prompt(stdscr, rows, cols, "& c ")
+
             curses.echo()
             desc = stdscr.getstr()
             curses.noecho()
+
             state["queue"].append({"text": desc})
             store(filename, state, "Created new\n\n%s\n" % desc)
+
+            # TODO don't redraw the entire screen here
+            stdscr.erase()
+            display_state(stdscr, state, rows, cols)
             pass
         elif c == ord('t'):
-            stdscr.addnstr("t ", cols)
+            update_prompt(stdscr, rows, cols, "& t ")
+
             n = get_index(stdscr)
             if n < len(state["queue"]):
                 t = state["queue"].pop(n)
@@ -157,9 +163,13 @@ def main(stdscr):
                 store(filename, state,
                       "Un-completed item\n\n%s\n" % t["text"])
                 pass
+
+            # TODO don't redraw the entire screen here
+            stdscr.erase()
+            display_state(stdscr, state, rows, cols)
             pass
         elif c == ord('m'):
-            stdscr.addnstr("m ", cols)
+            update_prompt(stdscr, rows, cols, "& m ")
 
             cur_ind = get_index(stdscr)
             stdscr.addnstr("%s " % letters[cur_ind], cols)
@@ -172,13 +182,16 @@ def main(stdscr):
 
             store(filename, state,
                   "Adjusted order of item\n\n%s\n" % t["text"])
+
+            # TODO don't redraw the entire screen here
+            stdscr.erase()
+            display_state(stdscr, state, rows, cols)
             pass
         elif c in [ord('?'), ord('h')]:
             display_help(stdscr, rows)
             pass
         else:
             update_prompt(stdscr, rows, cols, "Whuff-whuff! & ")
-            skip_refresh = True
             pass
         pass
     return
