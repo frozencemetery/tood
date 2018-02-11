@@ -54,7 +54,9 @@ def display_nth(stdscr, state, cols, n, at):
     else:
         return
 
-    return stdscr.addnstr(at, 0, "%s: [%s] %s" % (letter, done, text), cols)
+    stdscr.move(at, 0)
+    stdscr.clrtoeol()
+    return stdscr.addnstr("%s: [%s] %s" % (letter, done, text), cols)
 
 def display_state(stdscr, state, rows, cols, offset):
     stdscr.erase()
@@ -177,8 +179,14 @@ def main(stdscr):
             state["queue"].append({"text": desc})
             store(filename, state, "Created new\n\n%s\n" % desc)
 
-            # TODO don't redraw the entire screen here
-            display_state(stdscr, state, rows, cols, offset)
+            i = len(state["queue"]) - 1
+            # redraw everything below because lettering has changed
+            while i - offset < rows:
+                display_nth(stdscr, state, cols, i, i - offset)
+                i += 1
+                pass
+
+            update_prompt(stdscr, rows, cols, "& ")
             pass
         elif c == ord('t'):
             update_prompt(stdscr, rows, cols, "& t ")
