@@ -38,24 +38,31 @@ def update_prompt(stdscr, rows, cols, p):
     # can't paint bottom right
     return stdscr.addnstr(p, cols - 1)
 
-def display_state(stdscr, state, rows, cols):
+def display_nth(stdscr, state, cols, n, at):
+    letter = letters[n] if n < len(letters) else ' '
+
+    qlen = len(state["queue"])
+    if n < qlen:
+        text = state["queue"][n]["text"]
+        done = ' '
+        pass
+    elif n < qlen + len(state["done"]):
+        text = state["done"][n - qlen]["text"]
+        src = state["done"]
+        done = 'X'
+        pass
+    else:
+        return
+
+    return stdscr.addnstr(at, 0, "%s: [%s] %s" % (letter, done, text), cols)
+
+def display_state(stdscr, state, rows, cols, offset):
     stdscr.erase()
     stdscr.move(0, 0)
+
     i = 0
-    for t in state["queue"]:
-        if i > rows - 2: # for the prompt
-            break
-
-        letter = letters[i] if i < len(letters) else ' '
-        stdscr.addnstr("%s: [ ] %s\n" % (letter, t["text"]), cols)
-        i += 1
-        pass
-    for t in state["done"]:
-        if i > rows - 2: # for the prompt
-            break
-
-        letter = letters[i] if i < len(letters) else ' '
-        stdscr.addnstr("%s: [X] %s\n" % (letter, t["text"]), cols)
+    while i < rows - 1: # for the prompt
+        display_nth(stdscr, state, cols, i + offset, i)
         i += 1
         pass
 
@@ -113,11 +120,13 @@ def main(stdscr):
                  "done": [{"text": "Create list"}]}
         store(filename, state, "Create list")
         pass
-
     state = load(filename)
-    rows, cols = stdscr.getmaxyx()
-    display_state(stdscr, state, rows, cols)
 
+    offset = 0
+    stdscr.scrollok(True)
+    rows, cols = stdscr.getmaxyx()
+    stdscr.setscrreg(0, rows - 2) # don't scroll the prompt
+    display_state(stdscr, state, rows, cols, offset)
     while True:
         c = stdscr.getch()
         if c == ord('q'):
@@ -125,12 +134,38 @@ def main(stdscr):
         elif c == curses.KEY_RESIZE:
             # TODO don't redraw the entire screen here
             rows, cols = stdscr.getmaxyx()
+            stdscr.setscrreg(0, rows - 2) # don't scroll the prompt
             stdscr.erase()
-            display_state(stdscr, state, rows, cols)
+            display_state(stdscr, state, rows, cols, offset)
             pass
         elif c == ord('l'):
             stdscr.clear()
-            display_state(stdscr, state, rows, cols)
+            display_state(stdscr, state, rows, cols, offset)
+            pass
+        elif c == curses.KEY_DOWN:
+            offset += 1
+            max_offset = len(state["queue"]) + len(state["done"]) - 1
+            if offset > max_offset:
+                offset = max_offset
+                update_prompt(stdscr, rows, cols, "Whuff-whuff! & ")
+                continue
+
+            stdscr.scroll(1)
+
+            # as always, account for the prompt
+            display_nth(stdscr, state, cols, rows + offset - 2, rows - 2)
+            update_prompt(stdscr, rows, cols, "& ")
+            pass
+        elif c == curses.KEY_UP:
+            offset -= 1
+            if offset < 0:
+                offset = 0
+                update_prompt(stdscr, rows, cols, "Whuff-whuff! & ")
+                continue
+
+            stdscr.scroll(-1)
+            display_nth(stdscr, state, cols, offset, 0)
+            update_prompt(stdscr, rows, cols, "& ")
             pass
         elif c == ord('c'):
             update_prompt(stdscr, rows, cols, "& c ")
@@ -144,7 +179,7 @@ def main(stdscr):
 
             # TODO don't redraw the entire screen here
             stdscr.erase()
-            display_state(stdscr, state, rows, cols)
+            display_state(stdscr, state, rows, cols, offset)
             pass
         elif c == ord('t'):
             update_prompt(stdscr, rows, cols, "& t ")
@@ -165,7 +200,7 @@ def main(stdscr):
 
             # TODO don't redraw the entire screen here
             stdscr.erase()
-            display_state(stdscr, state, rows, cols)
+            display_state(stdscr, state, rows, cols, offset)
             pass
         elif c == ord('m'):
             update_prompt(stdscr, rows, cols, "& m ")
@@ -184,7 +219,7 @@ def main(stdscr):
 
             # TODO don't redraw the entire screen here
             stdscr.erase()
-            display_state(stdscr, state, rows, cols)
+            display_state(stdscr, state, rows, cols, offset)
             pass
         elif c in [ord('?'), ord('h')]:
             display_help(stdscr, rows)
