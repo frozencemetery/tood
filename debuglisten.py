@@ -19,7 +19,8 @@ def main(stdscr):
         stdscr.move(row, 0)
         stdscr.deleteln()
 
-        stdscr.addstr("%s  %s\n" % (str(datetime.now()), curses.keyname(c)))
+        stdscr.addstr("%s  %d: %s\n" %
+                      (str(datetime.now()), c, curses.keyname(c)))
         pass
     return
 
