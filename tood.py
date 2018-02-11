@@ -136,7 +136,6 @@ def main(stdscr):
             # TODO don't redraw the entire screen here
             rows, cols = stdscr.getmaxyx()
             stdscr.setscrreg(0, rows - 2) # don't scroll the prompt
-            stdscr.erase()
             display_state(stdscr, state, rows, cols, offset)
             pass
         elif c == ord('l'):
@@ -179,7 +178,6 @@ def main(stdscr):
             store(filename, state, "Created new\n\n%s\n" % desc)
 
             # TODO don't redraw the entire screen here
-            stdscr.erase()
             display_state(stdscr, state, rows, cols, offset)
             pass
         elif c == ord('t'):
@@ -200,7 +198,6 @@ def main(stdscr):
                 pass
 
             # TODO don't redraw the entire screen here
-            stdscr.erase()
             display_state(stdscr, state, rows, cols, offset)
             pass
         elif c == ord('m'):
@@ -219,7 +216,6 @@ def main(stdscr):
                   "Adjusted order of item\n\n%s\n" % t["text"])
 
             # TODO don't redraw the entire screen here
-            stdscr.erase()
             display_state(stdscr, state, rows, cols, offset)
             pass
         elif c in [ord('?'), ord('h')]:
