@@ -135,10 +135,17 @@ def main(stdscr):
         if c == ord('q'):
             break
         elif c == curses.KEY_RESIZE:
-            # TODO don't redraw the entire screen here
+            old_rows, old_cols = rows, cols
             rows, cols = stdscr.getmaxyx()
             stdscr.setscrreg(0, rows - 2) # don't scroll the prompt
-            display_state(stdscr, state, rows, cols, offset)
+
+            while old_rows < rows:
+                # start at (old_rows + 1), and account for prompt
+                display_nth(stdscr, state, cols, old_rows - 1 + offset,
+                            old_rows - 1)
+                old_rows += 1
+                pass
+            update_prompt(stdscr, rows, cols, "& ")
             pass
         elif c == ord('l'):
             stdscr.clear()
