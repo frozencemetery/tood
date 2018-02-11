@@ -9,8 +9,15 @@ import sys
 letters = "1234567890qwertyuiopasdfghjklzxcvbnm,."
 
 def cmd(*args):
-    DEVNULL = open(os.devnull, "w")
-    return subprocess.check_call(args, stdout=DEVNULL,
+    # try/except is faster than hasattr() only in the success case
+    try:
+        cmd.devnull
+        pass
+    except AttributeError:
+        cmd.devnull = open(os.devnull, "w")
+        pass
+
+    return subprocess.check_call(args, stdout=cmd.devnull,
                                  stderr=subprocess.STDOUT)
 
 def store(filepath, state, msg="Update"):
