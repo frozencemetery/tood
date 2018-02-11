@@ -32,9 +32,10 @@ def load(filepath):
     return json.load(open(filepath, "r"))
 
 def update_prompt(stdscr, rows, cols, p):
-    # can't paint bottom right
     stdscr.move(rows - 1, 0)
     stdscr.clrtoeol()
+
+    # can't paint bottom right
     return stdscr.addnstr(p, cols - 1)
 
 def display_state(stdscr, state, rows, cols):
@@ -82,16 +83,14 @@ def display_help(stdscr, rows):
     stdscr.addstr(disp)
 
     c = stdscr.getch()
-    # hack: forward back to main loop if not alphanumeric
-    # allows us to not discard a refresh event
     if c == curses.KEY_RESIZE:
+        # hack: forward back to main loop so we don't discard a refresh event
         curses.ungetch(c)
         pass
     return
 
 def get_index(stdscr):
-    n = letters.index(chr(stdscr.getch()))
-    return n
+    return letters.index(chr(stdscr.getch()))
 
 def main(stdscr):
     storagedir = os.path.join(os.environ["HOME"], ".toodata")
