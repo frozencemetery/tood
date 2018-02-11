@@ -76,7 +76,7 @@ def display_help(stdscr, rows):
         "(t)oggle #",
         "(m)ove # #",
         "(l) refresh",
-        "drag to scroll, or uparrow/downarrow",
+        "drag to scroll, or uparrow/downarrow, or C-p/C-n",
         "press any key to continue\n",
     ]
     if len(helps) < rows:
@@ -142,7 +142,7 @@ def main(stdscr):
             stdscr.clear()
             display_state(stdscr, state, rows, cols, offset)
             pass
-        elif c == curses.KEY_DOWN:
+        elif c in [curses.KEY_DOWN, 14]: # 14 is C-n
             offset += 1
             max_offset = len(state["queue"]) + len(state["done"]) - 1
             if offset > max_offset:
@@ -156,7 +156,7 @@ def main(stdscr):
             display_nth(stdscr, state, cols, rows + offset - 2, rows - 2)
             update_prompt(stdscr, rows, cols, "& ")
             pass
-        elif c == curses.KEY_UP:
+        elif c in [curses.KEY_UP, 16]: # 16 is C-p
             offset -= 1
             if offset < 0:
                 offset = 0
