@@ -71,10 +71,8 @@ def display_state(stdscr, state, rows, cols, offset):
     stdscr.erase()
     stdscr.move(0, 0)
 
-    i = 0
-    while i < rows - 1: # for the prompt
+    for i in range(rows - 1): # for the prompt
         display_nth(stdscr, state, cols, i + offset, i)
-        i += 1
         pass
 
     return update_prompt(stdscr, rows, cols, "& ")
@@ -148,11 +146,10 @@ def main(stdscr):
             rows, cols = stdscr.getmaxyx()
             stdscr.setscrreg(0, rows - 2) # don't scroll the prompt
 
-            while old_rows < rows:
+            for i in range(old_rows, rows):
                 # start at (old_rows + 1), and account for prompt
                 display_nth(stdscr, state, cols, old_rows - 1 + offset,
                             old_rows - 1)
-                old_rows += 1
                 pass
             update_prompt(stdscr, rows, cols, "& ")
             continue
@@ -241,9 +238,8 @@ def main(stdscr):
 
             i = len(state["queue"]) - 1
             # redraw everything below because lettering has changed
-            while i - offset < rows:
+            for i in range(i, rows + offset):
                 display_nth(stdscr, state, cols, i, i - offset)
-                i += 1
                 pass
 
             update_prompt(stdscr, rows, cols, "& ")
