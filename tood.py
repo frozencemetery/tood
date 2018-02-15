@@ -8,6 +8,15 @@ import sys
 
 letters = "1234567890qwertyuiopasdfghjklzxcvbnm,."
 
+# In a real language, this would be an enum type - maybe even a sum type!
+CURSES_STATES = {
+    "DEFAULT": 0,
+    "HELPING": 1,
+    "WAIT_TOGGLE": 2,
+    "WAIT_MOVE_FROM": 3,
+    "WAIT_MOVE_TO": 4,
+}
+
 def cmd(*args):
     # try/except is faster than hasattr() only in the success case
     try:
@@ -71,6 +80,7 @@ def display_state(stdscr, state, rows, cols, offset):
     return update_prompt(stdscr, rows, cols, "& ")
 
 def display_help(stdscr, rows):
+    # TODO scrolling the help text re-introduces the main list
     helps = [
         "(?h)elp",
         "(q)uit",
@@ -91,16 +101,11 @@ def display_help(stdscr, rows):
     stdscr.erase()
     stdscr.move(0, 0)
     stdscr.addstr(disp)
-
-    c = stdscr.getch()
-    if c == curses.KEY_RESIZE:
-        # hack: forward back to main loop so we don't discard a refresh event
-        curses.ungetch(c)
-        pass
     return
 
-def get_index(stdscr):
-    return letters.index(chr(stdscr.getch()))
+def lookup_item(c):
+    # TODO error handling?
+    return letters.index(chr(c))
 
 def main(stdscr):
     storagedir = os.path.join(os.environ["HOME"], ".toodata")
@@ -125,6 +130,8 @@ def main(stdscr):
         pass
     state = load(filename)
 
+    curses_state = CURSES_STATES["DEFAULT"]
+
     offset = 0
     stdscr.scrollok(True)
     rows, cols = stdscr.getmaxyx()
@@ -132,6 +139,8 @@ def main(stdscr):
     display_state(stdscr, state, rows, cols, offset)
     while True:
         c = stdscr.getch()
+
+        # First check the "global" operations
         if c == ord('q'):
             break
         elif c == curses.KEY_RESIZE:
@@ -146,11 +155,11 @@ def main(stdscr):
                 old_rows += 1
                 pass
             update_prompt(stdscr, rows, cols, "& ")
-            pass
+            continue
         elif c == ord('l'):
             stdscr.clear()
             display_state(stdscr, state, rows, cols, offset)
-            pass
+            continue
         elif c in [curses.KEY_DOWN, 14]: # 14 is C-n
             offset += 1
             max_offset = len(state["queue"]) + len(state["done"]) - 1
@@ -163,8 +172,7 @@ def main(stdscr):
 
             # as always, account for the prompt
             display_nth(stdscr, state, cols, rows + offset - 2, rows - 2)
-            update_prompt(stdscr, rows, cols, "& ")
-            pass
+            continue
         elif c in [curses.KEY_UP, 16]: # 16 is C-p
             offset -= 1
             if offset < 0:
@@ -174,9 +182,54 @@ def main(stdscr):
 
             stdscr.scroll(-1)
             display_nth(stdscr, state, cols, offset, 0)
-            update_prompt(stdscr, rows, cols, "& ")
-            pass
-        elif c == ord('c'):
+            continue
+
+        # Next, we check states
+        if curses_state == CURSES_STATES["HELPING"]:
+            curses_state = CURSES_STATES["DEFAULT"]
+            display_state(stdscr, state, rows, cols, offset)
+            continue
+        elif curses_state == CURSES_STATES["WAIT_TOGGLE"]:
+            n = lookup_item(c)
+            if n < len(state["queue"]):
+                t = state["queue"].pop(n)
+                state["done"].insert(0, t)
+                store(filename, state, "Completed item\n\n%s\n" % t["text"])
+                pass
+            else:
+                n -= len(state["queue"])
+                t = state["done"].pop(n)
+                state["queue"].append(t)
+                store(filename, state,
+                      "Un-completed item\n\n%s\n" % t["text"])
+                pass
+
+            # TODO don't redraw the entire screen here
+            display_state(stdscr, state, rows, cols, offset)
+            curses_state = CURSES_STATES["DEFAULT"]
+            continue
+        elif curses_state == CURSES_STATES["WAIT_MOVE_FROM"]:
+            move_from = lookup_item(c)
+            stdscr.addnstr("%s " % letters[move_from], cols)
+            curses_state = CURSES_STATES["WAIT_MOVE_TO"]
+            continue
+        elif curses_state == CURSES_STATES["WAIT_MOVE_TO"]:
+            move_to = lookup_item(c)
+            t = state["queue"].pop(move_from)
+            state["queue"].insert(move_to, t)
+            store(filename, state,
+                  "Adjusted order of item\n\n%s\n" % t["text"])
+
+            curses_state = CURSES_STATES["DEFAULT"]
+
+            # TODO don't redraw the entire screen here
+            display_state(stdscr, state, rows, cols, offset)
+            continue
+
+        # Finally, keys in the default state
+        assert(curses_state == CURSES_STATES["DEFAULT"])
+        if c == ord('c'):
+            # TODO this should use the state machine for scrolling
             update_prompt(stdscr, rows, cols, "& c ")
 
             curses.echo()
@@ -197,50 +250,20 @@ def main(stdscr):
             pass
         elif c == ord('t'):
             update_prompt(stdscr, rows, cols, "& t ")
-
-            n = get_index(stdscr)
-            if n < len(state["queue"]):
-                t = state["queue"].pop(n)
-                state["done"].insert(0, t)
-                store(filename, state, "Completed item\n\n%s\n" % t["text"])
-                pass
-            else:
-                n -= len(state["queue"])
-                t = state["done"].pop(n)
-                state["queue"].append(t)
-                store(filename, state,
-                      "Un-completed item\n\n%s\n" % t["text"])
-                pass
-
-            # TODO don't redraw the entire screen here
-            display_state(stdscr, state, rows, cols, offset)
-            pass
+            curses_state = CURSES_STATES["WAIT_TOGGLE"]
+            continue
         elif c == ord('m'):
             update_prompt(stdscr, rows, cols, "& m ")
-
-            cur_ind = get_index(stdscr)
-            stdscr.addnstr("%s " % letters[cur_ind], cols)
-
-            tgt_ind = get_index(stdscr)
-
-            t = state["queue"].pop(cur_ind)
-
-            state["queue"].insert(tgt_ind, t)
-
-            store(filename, state,
-                  "Adjusted order of item\n\n%s\n" % t["text"])
-
-            # TODO don't redraw the entire screen here
-            display_state(stdscr, state, rows, cols, offset)
-            pass
+            curses_state = CURSES_STATES["WAIT_MOVE_FROM"]
+            continue
         elif c in [ord('?'), ord('h')]:
             display_help(stdscr, rows)
-            display_state(stdscr, state, rows, cols, offset)
-            pass
-        else:
-            update_prompt(stdscr, rows, cols, "Whuff-whuff! & ")
-            pass
-        pass
+            curses_state = CURSES_STATES["HELPING"]
+            continue
+
+        # bad key
+        update_prompt(stdscr, rows, cols, "Whuff-whuff! & ")
+        continue
     return
 
 if __name__ == "__main__":
