@@ -146,7 +146,7 @@ def main(stdscr):
             rows, cols = stdscr.getmaxyx()
             stdscr.setscrreg(0, rows - 2) # don't scroll the prompt
 
-            for i in range(old_rows, rows):
+            for old_rows in range(old_rows, rows):
                 # start at (old_rows + 1), and account for prompt
                 display_nth(stdscr, state, cols, old_rows - 1 + offset,
                             old_rows - 1)
