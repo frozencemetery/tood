@@ -219,8 +219,11 @@ def main(stdscr):
 
             curses_state = CURSES_STATES["DEFAULT"]
 
-            # TODO don't redraw the entire screen here
-            display_state(stdscr, state, rows, cols, offset)
+            for i in range(min(move_from, move_to),
+                           max(move_from, move_to) + 1):
+                display_nth(stdscr, state, cols, i, i - offset)
+                pass
+            update_prompt(stdscr, rows, cols, "& ")
             continue
 
         # Finally, keys in the default state
