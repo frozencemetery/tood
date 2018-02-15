@@ -188,21 +188,27 @@ def main(stdscr):
             continue
         elif curses_state == CURSES_STATES["WAIT_TOGGLE"]:
             n = lookup_item(c)
+            old_pos = n
             if n < len(state["queue"]):
                 t = state["queue"].pop(n)
                 state["done"].insert(0, t)
+                new_pos = len(state["queue"])
                 store(filename, state, "Completed item\n\n%s\n" % t["text"])
                 pass
             else:
                 n -= len(state["queue"])
                 t = state["done"].pop(n)
                 state["queue"].append(t)
+                new_pos = len(state["queue"]) - 1
                 store(filename, state,
                       "Un-completed item\n\n%s\n" % t["text"])
                 pass
 
-            # TODO don't redraw the entire screen here
-            display_state(stdscr, state, rows, cols, offset)
+            for i in range(min(old_pos, new_pos),
+                           max(old_pos, new_pos) + 1):
+                display_nth(stdscr, state, cols, i, i - offset)
+                pass
+            update_prompt(stdscr, rows, cols, "& ")
             curses_state = CURSES_STATES["DEFAULT"]
             continue
         elif curses_state == CURSES_STATES["WAIT_MOVE_FROM"]:
