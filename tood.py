@@ -15,6 +15,7 @@ CURSES_STATES = {
     "WAIT_TOGGLE": 2,
     "WAIT_MOVE_FROM": 3,
     "WAIT_MOVE_TO": 4,
+    "WAIT_CREATE": 5,
 }
 
 def cmd(*args):
@@ -139,9 +140,7 @@ def main(stdscr):
         c = stdscr.getch()
 
         # First check the "global" operations
-        if c == ord('q'):
-            break
-        elif c == curses.KEY_RESIZE:
+        if c == curses.KEY_RESIZE:
             old_rows, old_cols = rows, cols
             rows, cols = stdscr.getmaxyx()
             stdscr.setscrreg(0, rows - 2) # don't scroll the prompt
@@ -152,10 +151,6 @@ def main(stdscr):
                             old_rows - 1)
                 pass
             update_prompt(stdscr, rows, cols, "& ")
-            continue
-        elif c == ord('l'):
-            stdscr.clear()
-            display_state(stdscr, state, rows, cols, offset)
             continue
         elif c in [curses.KEY_DOWN, 14]: # 14 is C-n
             offset += 1
@@ -231,28 +226,47 @@ def main(stdscr):
                 pass
             update_prompt(stdscr, rows, cols, "& ")
             continue
+        elif curses_state == CURSES_STATES["WAIT_CREATE"]:
+            if c == curses.KEY_BACKSPACE:
+                if desc != "":
+                    # TODO this could redraw slightly less
+                    desc = desc[:-1]
+                    update_prompt(stdscr, rows, cols, "& c %s" % desc)
+                    pass
+                continue
+            elif c != ord('\n'):
+                desc += chr(c)
+                stdscr.addch(c)
+                continue
 
-        # Finally, keys in the default state
-        assert(curses_state == CURSES_STATES["DEFAULT"])
-        if c == ord('c'):
-            # TODO this should use the state machine for scrolling
-            update_prompt(stdscr, rows, cols, "& c ")
+            if desc != "": # allow empty string to abort
+                state["queue"].append({"text": desc})
+                store(filename, state, "Created new\n\n%s\n" % desc)
 
-            curses.echo()
-            desc = stdscr.getstr()
-            curses.noecho()
-
-            state["queue"].append({"text": desc})
-            store(filename, state, "Created new\n\n%s\n" % desc)
-
-            i = len(state["queue"]) - 1
-            # redraw everything below because lettering has changed
-            for i in range(i, rows + offset):
-                display_nth(stdscr, state, cols, i, i - offset)
+                i = len(state["queue"]) - 1
+                # redraw everything below because lettering has changed
+                for i in range(i, rows + offset):
+                    display_nth(stdscr, state, cols, i, i - offset)
+                    pass
                 pass
 
             update_prompt(stdscr, rows, cols, "& ")
-            pass
+            curses_state = CURSES_STATES["DEFAULT"]
+            continue
+
+        # Finally, keys in the default state
+        assert(curses_state == CURSES_STATES["DEFAULT"])
+        if c == ord('q'):
+            break
+        elif c == ord('l'):
+            stdscr.clear()
+            display_state(stdscr, state, rows, cols, offset)
+            continue
+        elif c == ord('c'):
+            update_prompt(stdscr, rows, cols, "& c ")
+            curses_state = CURSES_STATES["WAIT_CREATE"]
+            desc = ""
+            continue
         elif c == ord('t'):
             update_prompt(stdscr, rows, cols, "& t ")
             curses_state = CURSES_STATES["WAIT_TOGGLE"]
