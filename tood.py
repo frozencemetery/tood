@@ -157,7 +157,7 @@ def main(stdscr):
             max_offset = len(state["queue"]) + len(state["done"]) - 1
             if offset > max_offset:
                 offset = max_offset
-                update_prompt(stdscr, rows, cols, "Whuff-whuff! & ")
+                curses.flash()
                 continue
 
             stdscr.scroll(1)
@@ -169,7 +169,7 @@ def main(stdscr):
             offset -= 1
             if offset < 0:
                 offset = 0
-                update_prompt(stdscr, rows, cols, "Whuff-whuff! & ")
+                curses.flash()
                 continue
 
             stdscr.scroll(-1)
@@ -281,7 +281,7 @@ def main(stdscr):
             continue
 
         # bad key
-        update_prompt(stdscr, rows, cols, "Whuff-whuff! & ")
+        curses.flash()
         continue
     return
 
