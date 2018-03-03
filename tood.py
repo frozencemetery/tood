@@ -62,7 +62,10 @@ def update_prompt(stdscr, rows, cols, p):
     # can't paint bottom right
     return stdscr.addnstr(p, cols - 1)
 
-def display_nth(stdscr, state, cols, n, at):
+def display_nth(stdscr, state, rows, cols, n, at):
+    if at >= rows - 1: # prompt!
+        return
+
     letter = letters[n] if n < len(letters) else ' '
 
     qlen = len(state["queue"])
@@ -87,7 +90,7 @@ def display_state(stdscr, state, rows, cols, offset):
     stdscr.move(0, 0)
 
     for i in range(rows - 1): # for the prompt
-        display_nth(stdscr, state, cols, i + offset, i)
+        display_nth(stdscr, state, rows, cols, i + offset, i)
         pass
 
     return update_prompt(stdscr, rows, cols, "& ")
@@ -163,7 +166,7 @@ def main(stdscr):
 
             for old_rows in range(old_rows, rows):
                 # start at (old_rows + 1), and account for prompt
-                display_nth(stdscr, state, cols, old_rows - 1 + offset,
+                display_nth(stdscr, state, rows, cols, old_rows - 1 + offset,
                             old_rows - 1)
                 pass
             update_prompt(stdscr, rows, cols, "& ")
@@ -179,7 +182,8 @@ def main(stdscr):
             stdscr.scroll(1)
 
             # as always, account for the prompt
-            display_nth(stdscr, state, cols, rows + offset - 2, rows - 2)
+            display_nth(stdscr, state, rows, cols,
+                        rows + offset - 2, rows - 2)
             continue
         elif c in [curses.KEY_UP, 16]: # 16 is C-p
             offset -= 1
@@ -189,7 +193,7 @@ def main(stdscr):
                 continue
 
             stdscr.scroll(-1)
-            display_nth(stdscr, state, cols, offset, 0)
+            display_nth(stdscr, state, rows, cols, offset, 0)
             continue
 
         # Next, we check states
@@ -217,7 +221,7 @@ def main(stdscr):
 
             for i in range(max(offset, min(old_pos, new_pos)),
                            min(rows - 1 + offset, max(old_pos, new_pos))):
-                display_nth(stdscr, state, cols, i, i - offset)
+                display_nth(stdscr, state, rows, cols, i, i - offset)
                 pass
             update_prompt(stdscr, rows, cols, "& ")
             curses_state = CURSES_STATES["DEFAULT"]
@@ -238,7 +242,7 @@ def main(stdscr):
 
             for i in range(max(offset, min(move_from, move_to)),
                            min(offset + rows - 1, max(move_from, move_to))):
-                display_nth(stdscr, state, cols, i, i - offset)
+                display_nth(stdscr, state, rows, cols, i, i - offset)
                 pass
             update_prompt(stdscr, rows, cols, "& ")
             continue
@@ -262,7 +266,7 @@ def main(stdscr):
                 i = len(state["queue"]) - 1
                 # redraw everything below because lettering has changed
                 for i in range(i, rows + offset):
-                    display_nth(stdscr, state, cols, i, i - offset)
+                    display_nth(stdscr, state, rows, cols, i, i - offset)
                     pass
                 pass
 
@@ -308,7 +312,8 @@ def main(stdscr):
             if edit_text != "":
                 store(filename, state, "Edited: " + edit_item["text"])
                 pass
-            display_nth(stdscr, state, cols, edit_idx, edit_idx - offset)
+            display_nth(stdscr, state, rows, cols,
+                        edit_idx, edit_idx - offset)
             update_prompt(stdscr, rows, cols, "& ")
             curses_state = CURSES_STATES["DEFAULT"]
             continue
