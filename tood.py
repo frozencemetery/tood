@@ -27,6 +27,11 @@ CURSES_STATES = {
     "WAIT_EDIT_TEXT": 7,
 }
 
+def selfexec():
+    # argv[0] needs to be the interpreter; python hides this, making
+    # argv[0] the program being interpreted
+    exit(os.execlp("python2", "python2", sys.argv[0]))
+
 def cmd(*args):
     # try/except is faster than hasattr() only in the success case
     try:
@@ -96,6 +101,7 @@ def display_help(stdscr, rows):
         "(t)oggle #",
         "(m)ove # #",
         "(e)dit #",
+        "(u)pdate",
         "(l) refresh",
         "drag to scroll, or uparrow/downarrow, or C-p/C-n",
         "press any key to continue\n",
@@ -311,6 +317,11 @@ def main(stdscr):
         assert(curses_state == CURSES_STATES["DEFAULT"])
         if c == ord('q'):
             break
+        elif c == ord('u'):
+            os.chdir(os.path.join(os.environ["HOME"], "tood"))
+            cmd("git", "pull")
+            selfexec()
+            assert("selfexec() failed?")
         elif c == ord('l'):
             stdscr.clear()
             display_state(stdscr, state, rows, cols, offset)
@@ -346,9 +357,7 @@ if __name__ == "__main__":
     # some distros make python be python3, which is... brave
     if sys.version_info.major != 2:
         print("I'm python2-only; trying to switch interpreters...")
-        # argv[0] needs to be the interpreter; python hides this, making
-        # argv[0] the program being interpreted
-        exit(os.execlp("python2", "python2", sys.argv[0]))
+        selfexec()
 
     curses.wrapper(main)
     pass
