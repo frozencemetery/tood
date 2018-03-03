@@ -199,8 +199,8 @@ def main(stdscr):
                       "Un-completed item\n\n%s\n" % t["text"])
                 pass
 
-            for i in range(min(old_pos, new_pos, offset),
-                           max(old_pos, new_pos, rows + offset - 2)):
+            for i in range(max(offset, min(old_pos, new_pos)),
+                           min(rows - 1 + offset, max(old_pos, new_pos)):
                 display_nth(stdscr, state, cols, i, i - offset)
                 pass
             update_prompt(stdscr, rows, cols, "& ")
@@ -220,8 +220,8 @@ def main(stdscr):
 
             curses_state = CURSES_STATES["DEFAULT"]
 
-            for i in range(min(move_from, move_to, offset),
-                           max(move_from, move_to, rows + offset - 2)):
+            for i in range(max(offset, min(move_from, move_to)),
+                           min(offset + rows - 1, max(move_from, move_to)):
                 display_nth(stdscr, state, cols, i, i - offset)
                 pass
             update_prompt(stdscr, rows, cols, "& ")
