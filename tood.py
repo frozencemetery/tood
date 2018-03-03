@@ -234,7 +234,7 @@ def main(stdscr):
             update_prompt(stdscr, rows, cols, "& ")
             continue
         elif curses_state == CURSES_STATES["WAIT_CREATE"]:
-            if c == curses.KEY_BACKSPACE:
+            if c in [curses.KEY_BACKSPACE, 0x7f]:
                 if desc != "":
                     # TODO this could redraw slightly less
                     desc = desc[:-1]
