@@ -23,6 +23,8 @@ CURSES_STATES = {
     "WAIT_MOVE_FROM": 3,
     "WAIT_MOVE_TO": 4,
     "WAIT_CREATE": 5,
+    "WAIT_EDIT_LETTER": 6,
+    "WAIT_EDIT_TEXT": 7,
 }
 
 def cmd(*args):
@@ -260,6 +262,48 @@ def main(stdscr):
             update_prompt(stdscr, rows, cols, "& ")
             curses_state = CURSES_STATES["DEFAULT"]
             continue
+        elif curses_state == CURSES_STATES["WAIT_EDIT_LETTER"]:
+            edit_idx = lookup_item(c)
+            if edit_idx < len(state["queue"]):
+                edit_item = state["queue"].pop(edit_idx)
+                pass
+            else:
+                edit_item = state["done"].pop(edit_idx - len(state["queue"]))
+                pass
+            edit_text = edit_item["text"]
+            update_prompt(stdscr, rows, cols, "& e " + edit_text)
+            curses_state = CURSES_STATES["WAIT_EDIT_TEXT"]
+            continue
+        elif curses_state == CURSES_STATES["WAIT_EDIT_TEXT"]:
+            if c in [curses.KEY_BACKSPACE, 0x7f]:
+                if edit_text != "":
+                    # TODO this could redraw slightly less
+                    edit_text = edit_text[:-1]
+                    update_prompt(stdscr, rows, cols, "& e " + edit_text)
+                    pass
+                continue
+            elif c != ord('\n'):
+                edit_text += chr(c)
+                stdscr.addch(c)
+                continue
+
+            if edit_text != "": # empty reverts
+                edit_item["text"] = edit_text
+                pass
+
+            if edit_idx <= len(state["queue"]):
+                state["queue"].insert(edit_idx, edit_item)
+                pass
+            else:
+                state["done"].insert(edit_idx - len(state["queue"]),
+                                     edit_item)
+                pass
+            if edit_text != "":
+                store(filename, state, "Edited: " + edit_item["text"])
+                pass
+            display_nth(stdscr, state, cols, edit_idx, edit_idx - offset)
+            curses_state = CURSES_STATES["DEFAULT"]
+            continue
 
         # Finally, keys in the default state
         assert(curses_state == CURSES_STATES["DEFAULT"])
@@ -281,6 +325,10 @@ def main(stdscr):
         elif c == ord('m'):
             update_prompt(stdscr, rows, cols, "& m ")
             curses_state = CURSES_STATES["WAIT_MOVE_FROM"]
+            continue
+        elif c == ord('e'):
+            update_prompt(stdscr, rows, cols, "& e ")
+            curses_state = CURSES_STATES["WAIT_EDIT_LETTER"]
             continue
         elif c in [ord('?'), ord('h')]:
             display_help(stdscr, rows)
