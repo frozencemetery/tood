@@ -302,6 +302,7 @@ def main(stdscr):
                 store(filename, state, "Edited: " + edit_item["text"])
                 pass
             display_nth(stdscr, state, cols, edit_idx, edit_idx - offset)
+            update_prompt(stdscr, rows, cols, "& ")
             curses_state = CURSES_STATES["DEFAULT"]
             continue
 
