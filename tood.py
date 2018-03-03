@@ -6,7 +6,14 @@ import os
 import subprocess
 import sys
 
-letters = "1234567890qwertyuiopasdfghjklzxcvbnm,."
+# Order matches my phone keyboard, but characters are removed that can't be
+# easily typed on a normal American keyboard.  Don't like the order?  Don't
+# have more than 26 items.  Or make it configurable.  That works too.
+#
+# normal (0) + shifted (1) + symbols (1) + special (2)
+letters = "1234567890qwertyuiopasdfghjklzxcvbnm,." + \
+          "!@#$%^&*()QWERTYUIOPASDFGHJKLZXCVBNM" + \
+          "_-+/\"':;?" + "~`|={}\\[]<>"
 
 # In a real language, this would be an enum type - maybe even a sum type!
 CURSES_STATES = {
