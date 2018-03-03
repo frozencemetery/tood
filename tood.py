@@ -95,6 +95,7 @@ def display_help(stdscr, rows):
         "(c)reate",
         "(t)oggle #",
         "(m)ove # #",
+        "(e)dit #",
         "(l) refresh",
         "drag to scroll, or uparrow/downarrow, or C-p/C-n",
         "press any key to continue\n",
