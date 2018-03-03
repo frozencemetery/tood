@@ -8,6 +8,8 @@ from datetime import datetime
 
 def main(stdscr):
     stdscr.scrollok(True)
+    stdscr.addstr("SHELL is: %s\n" % os.getenv("SHELL"))
+    stdscr.addstr("TERM is: %s\n" % os.getenv("TERM"))
     while True:
         stdscr.addstr("Listening (q to quit)...")
 
