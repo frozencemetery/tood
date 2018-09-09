@@ -18,14 +18,16 @@ FHS, just do
   ./tood.py
 #+END_SRC
 
-For mobile deployment, it's a bit more complicated.  It may work with other
-things, but I use a Termux system.  This needs both python2 and git installed.
-Prior to usage, you'll need to set up git (i.e., set user.name and
-user.email); otherwise, the git operations will somewhat mysteriously bomb
-out.
+You need both python2 and git installed.  Prior to usage, you'll need to set
+up git (i.e., set user.name and user.email); otherwise, the git operations
+will somewhat mysteriously bomb out.
 
-However, shebangs won't work right because they require hardcoding paths.  I
-recommend defining an alias for this:
+For mobile deployment, it's a bit more complicated.  It may work with other
+things, but I'm only testing against Termux.
+
+Shebangs won't work right because they require hardcoding paths.  If you're in
+Termux, just install termux-exec (now possibly a default) and the shebang will
+work properly.  Otherwise, I recommend defining an alias for this:
 
 #+BEGIN_SRC sh
   echo >> ~/.bashrc <<EOF
