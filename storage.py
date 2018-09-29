@@ -44,10 +44,10 @@ class Storage:
             n -= len(self.queue)
             t = self.done.pop(n)
             self.queue.append(t)
-            new_pos = len(self.queue) - 1
+            new_pos = len(self.queue)
             self.store(msg="Un-completed item\n\n%s\n" % t["text"])
             pass
-        return min(old_pos, new_pos), max(old_pos, new_pos)
+        return min(old_pos, new_pos) - 1, max(old_pos, new_pos) + 1
 
     def move(self, move_from, move_to):
         # TODO this will explode if you move done stuff around
