@@ -15,7 +15,10 @@ def cmd(*args):
                                  stderr=subprocess.STDOUT)
 
 
+# Commands have a normal "text" field and a "command" field, which is a
+# function that does ~something~ and returns the updated range.
 class Storage:
+    cmds = []
     queue = []
     done = []
 
@@ -34,6 +37,10 @@ class Storage:
 
     def toggle(self, n):
         old_pos = n
+        if n < len(self.cmds):
+            return self.cmds[n]["command"]()
+
+        n -= len(self.cmds)
         if n < len(self.queue):
             t = self.queue.pop(n)
             self.done.insert(0, t)
@@ -50,9 +57,12 @@ class Storage:
         return min(old_pos, new_pos) - 1, max(old_pos, new_pos) + 1
 
     def move(self, move_from, move_to):
-        # TODO this will explode if you move done stuff around
-        t = self.queue.pop(move_from)
-        self.queue.insert(move_to, t)
+        # TODO this will explode if you move done stuff around and basically
+        # just needs to be rewritten
+        assert(move_from >= len(self.cmds))
+        assert(move_to >= len(self.cmds))
+        t = self.queue.pop(move_from - len(self.cmds))
+        self.queue.insert(move_to - len(self.cmds), t)
         self.store(msg="Adjusted order of item\n\n%s\n" % t["text"])
         return min(move_from, move_to), max(move_from, move_to)
 
@@ -62,9 +72,13 @@ class Storage:
 
         self.queue.append({"text": desc})
         self.store(msg="Created new\n\n%s\n" % desc)
-        return len(self.queue) - 1
+        return len(self.queue) - 1 + len(self.cmds)
 
-    def __init__(self):
+    def __init__(self, cmds=None):
+        if cmds != None:
+            self.cmds = cmds
+            pass
+        
         self.storagedir = os.path.join(os.environ["HOME"], ".toodata")
         self.filename = "tood.json"
         self.filepath = os.path.join(self.storagedir, self.filename)
@@ -105,11 +119,15 @@ class Storage:
         return
 
     def __len__(self):
-        return len(self.queue) + len(self.done)
+        return len(self.cmds) + len(self.queue) + len(self.done)
 
     def __getitem__(self, key):
         if type(key) != int:
             raise TypeError
+        cmdlen = len(self.cmds)
+        if key < cmdlen:
+            return self.cmds[key]
+        key -= cmdlen
         qlen = len(self.queue)
         if key < qlen:
             return self.queue[key]
@@ -120,6 +138,8 @@ class Storage:
             raise TypeError
         if value == "": # abort on empty string
             return
+        cmdlen = len(self.cmds)
+        key -= cmdlen # TODO
         qlen = len(self.queue)
         if key < qlen:
             self.queue[key]["text"] = value
