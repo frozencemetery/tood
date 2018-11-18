@@ -32,7 +32,7 @@ class CState:
         curses.mousemask(curses.BUTTON1_PRESSED | curses.BUTTON1_RELEASED |
                          curses.BUTTON1_CLICKED | curses.BUTTON4_PRESSED |
                          curses.BUTTON5_PRESSED) # button5 defined above
-        curses.mouseinterval(0) # why even wait I'm only listening for presses
+        curses.mouseinterval(0) # waiting here makes everything really laggy
 
         curses.use_default_colors()
         curses.init_pair(1, 0, 0xb)

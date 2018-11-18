@@ -92,6 +92,14 @@ def cmd_new(stdscr, cs):
 
     return 0, -1
 
+def click_here(cs, stdscr):
+    lower, upper = cs.store.toggle(stdscr, cs, cs.get_highlight_abs())
+    upper = len(cs.store) if upper == -1 else upper
+    for r in range(lower, upper + 1):
+        cs.display_nth(r)
+        pass
+    return
+
 def curses_main(stdscr):
     cmds = [
         {"text": "(top of list)", "command": cmd_stub},
@@ -103,6 +111,7 @@ def curses_main(stdscr):
 
     cs = CState(stdscr, store, helptext)
     cs.display_store()
+    second = False
     while True:
         # UI
         c = stdscr.getch()
@@ -132,14 +141,21 @@ def curses_main(stdscr):
             if bstate & curses.BUTTON5_PRESSED:
                 cs.scroll_down()
                 continue
+
             if bstate & curses.BUTTON1_PRESSED:
-                cs.set_highlight_local(row)
+                second = cs.set_highlight_local(row)
                 srow = row
                 continue
             if bstate & curses.BUTTON1_RELEASED:
+                if srow == row:
+                    if second:
+                        second = False
+                        click_here(cs, stdscr)
+                        pass
+                    continue
+
                 srow += cs._offset
                 row += cs._offset
-
                 if srow < len(cs.store.cmds) or \
                    srow >= len(cs.store.cmds) + len(cs.store.queue):
                     # you can't move that!  Or that!
@@ -154,10 +170,8 @@ def curses_main(stdscr):
                     pass
 
                 cs.set_highlight_local(row - cs._offset)
-                if srow == row:
-                    # oof, too slow - tough break.
-                    continue
 
+                second = False
                 store.move(srow, row)
                 for r in range(srow, row + 1):
                     cs.display_nth(r)
@@ -168,16 +182,12 @@ def curses_main(stdscr):
                 srow = None
                 continue
             if bstate & curses.BUTTON1_CLICKED:
+                second = False
                 same = cs.set_highlight_local(row)
                 if not same:
                     continue
 
-                lower, upper = cs.store.toggle(stdscr, cs,
-                                               cs.get_highlight_abs())
-                upper = len(cs.store) if upper == -1 else upper
-                for r in range(lower, upper + 1):
-                    cs.display_nth(r)
-                    pass
+                click_here(cs, stdscr)
                 continue
             continue
 
