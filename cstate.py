@@ -29,7 +29,8 @@ class CState:
         curses.curs_set(0) # invisible cursor
 
         # 1 is left click, 4 is scroll up, 5 is scroll down
-        curses.mousemask(curses.BUTTON1_PRESSED | curses.BUTTON4_PRESSED |
+        curses.mousemask(curses.BUTTON1_PRESSED | curses.BUTTON1_RELEASED |
+                         curses.BUTTON1_CLICKED | curses.BUTTON4_PRESSED |
                          curses.BUTTON5_PRESSED) # button5 defined above
         curses.mouseinterval(0) # why even wait I'm only listening for presses
 

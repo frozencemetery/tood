@@ -31,6 +31,7 @@ helptext = "hi this is the help text\n" \
            "commands are at the top\n" \
            "press twice on them to do the thing\n" \
            "queue boundaries are in blue\n" \
+           "drag items to move their priority\n" \
            "hope this helps\n" \
            "do anything to return"
 def cmd_help(stdscr, *args):
@@ -127,11 +128,46 @@ def curses_main(stdscr):
 
             if bstate & curses.BUTTON4_PRESSED:
                 cs.scroll_up()
-                pass
+                continue
             if bstate & curses.BUTTON5_PRESSED:
                 cs.scroll_down()
-                pass
+                continue
             if bstate & curses.BUTTON1_PRESSED:
+                cs.set_highlight_local(row)
+                srow = row
+                continue
+            if bstate & curses.BUTTON1_RELEASED:
+                srow += cs._offset
+                row += cs._offset
+
+                if srow < len(cs.store.cmds) or \
+                   srow >= len(cs.store.cmds) + len(cs.store.queue):
+                    # you can't move that!  Or that!
+                    continue
+                elif row >= len(cs.store.cmds) + len(cs.store.queue):
+                    # you can't put that there!
+                    row = len(cs.store.cmds) + len(cs.store.queue) - 1
+                    pass
+                elif row < len(cs.store.cmds):
+                    # or there!
+                    row = len(cs.store.cmds)
+                    pass
+
+                cs.set_highlight_local(row - cs._offset)
+                if srow == row:
+                    # oof, too slow - tough break.
+                    continue
+
+                store.move(srow, row)
+                for r in range(srow, row + 1):
+                    cs.display_nth(r)
+                    pass
+                for r in range(row, srow + 1):
+                    cs.display_nth(r)
+                    pass
+                srow = None
+                continue
+            if bstate & curses.BUTTON1_CLICKED:
                 same = cs.set_highlight_local(row)
                 if not same:
                     continue

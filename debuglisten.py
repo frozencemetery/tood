@@ -92,6 +92,7 @@ def main(stdscr):
         stdscr.addstr("3: All mouse events\n")
         stdscr.addstr("4: Presses only\n")
         stdscr.addstr("5: Button 1 presses only\n")
+        stdscr.addstr("6: Button 1 clicks and releases\n")
         stdscr.addstr("q: quit\n")
         c = stdscr.getch()
         stdscr.addstr("%s\n" % chr(c))
@@ -128,6 +129,9 @@ def main(stdscr):
             break
         elif c == ord("5"):
             curses.mousemask(curses.BUTTON1_PRESSED)
+            break
+        elif c == ord("6"):
+            curses.mousemask(curses.BUTTON1_CLICKED | curses.BUTTON1_RELEASED)
             break
                 
         stdscr.addstr("Come on, try again\n")
