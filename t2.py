@@ -43,6 +43,7 @@ def curses_main(stdscr):
     cmds = [
         {"text": "(top of list)", "command": cmd_stub},
         {"text": "Help (press twice)", "command": cmd_help},
+        {"text": "Quit", "command": lambda _: exit(0)},
         {"text": "Create new ", "command": cmd_stub},
     ]
     store = Storage(cmds)
