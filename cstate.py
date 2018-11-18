@@ -75,14 +75,6 @@ class CState:
             pass
         return
 
-    def display_help(self):
-        self.stdscr.erase()
-        self.stdscr.move(0, 0)
-
-        self.stdscr.addstr(self.helptext)
-        self.stdscr.getch()
-        return self.display_store()
-    
     def resize(self):
         old_rows, old_cols = self.rows, self.cols
         self.rows, self.cols = self.stdscr.getmaxyx()

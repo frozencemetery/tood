@@ -17,17 +17,34 @@ except AttributeError:
     curses.BUTTON5_PRESSED = 0x200000
     pass
 
-helptext = """TOOD write helptext
-gotta do this gotta do it
-press any key to continue
-"""
+helptext = "hi this is the help text\n" \
+           "the ui is mostly finger/mouse driven\n" \
+           "scrolling should just work\n" \
+           "press once on a thing to select it\n" \
+           "press again to toggle it\n" \
+           "commands are at the top\n" \
+           "press twice on them to do the thing\n" \
+           "queue boundaries are in blue\n" \
+           "hope this helps\n" \
+           "do anything to return"
+def cmd_help(stdscr):
+    stdscr.erase()
+    stdscr.move(0, 0)
+
+    stdscr.addstr(helptext)
+    stdscr.getch()
+    return 0, -1
+
+def cmd_stub(*args):
+    curses.flash()
+    return 0, 0
 
 def curses_main(stdscr):
-    def stub():
-        curses.flash()
-        return 0, 0
-
-    cmds = [{"text": "Create new", "command": stub}]
+    cmds = [
+        {"text": "(top of list)", "command": cmd_stub},
+        {"text": "Help (press twice)", "command": cmd_help},
+        {"text": "Create new ", "command": cmd_stub},
+    ]
     store = Storage(cmds)
 
     cs = CState(stdscr, store, helptext)
@@ -66,20 +83,13 @@ def curses_main(stdscr):
                 if not same:
                     continue
 
-                lower, upper = cs.store.toggle(cs.get_highlight_abs())
+                lower, upper = cs.store.toggle(stdscr, cs.get_highlight_abs())
+                upper = len(cs.store) if upper == -1 else upper
                 for r in range(lower, upper + 1):
                     cs.display_nth(r)
                     pass
                 continue
             continue
-        elif c in [ord('?'), ord('h')]:
-            cs.display_help()
-            continue
-        elif c == ord('c'):
-            # make a new one
-            continue        
-        if c == ord('q'):
-            break
 
         # bad key
         curses.flash()

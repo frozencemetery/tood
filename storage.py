@@ -35,10 +35,10 @@ class Storage:
         cmd("git", "commit", "-m", msg)
         return
 
-    def toggle(self, n):
+    def toggle(self, stdscr, n):
         old_pos = n
         if n < len(self.cmds):
-            return self.cmds[n]["command"]()
+            return self.cmds[n]["command"](stdscr)
 
         n -= len(self.cmds)
         if n < len(self.queue):
