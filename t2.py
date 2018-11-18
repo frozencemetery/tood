@@ -1,13 +1,15 @@
 #!/usr/bin/python3
 
 import curses
+from curses import ascii
+
 import json
 import os
 import subprocess
 import sys
 
 from cstate import CState
-from storage import *
+from storage import Storage
 
 # if they ever decide to fix this...
 try:
@@ -16,6 +18,10 @@ try:
 except AttributeError:
     curses.BUTTON5_PRESSED = 0x200000
     pass
+
+def cmd_stub(*args):
+    curses.flash()
+    return 0, 0
 
 helptext = "hi this is the help text\n" \
            "the ui is mostly finger/mouse driven\n" \
@@ -27,7 +33,7 @@ helptext = "hi this is the help text\n" \
            "queue boundaries are in blue\n" \
            "hope this helps\n" \
            "do anything to return"
-def cmd_help(stdscr):
+def cmd_help(stdscr, *args):
     stdscr.erase()
     stdscr.move(0, 0)
 
@@ -35,16 +41,62 @@ def cmd_help(stdscr):
     stdscr.getch()
     return 0, -1
 
-def cmd_stub(*args):
-    curses.flash()
-    return 0, 0
+def cmd_quit(*args):
+    exit(0)
+
+def cmd_new(stdscr, cs):
+    stdscr.erase()
+    stdscr.move(0, 0)
+    # TODO set colors on this
+    stdscr.addstr("Enter text for new TODO\n"
+                  "(Backspace supported, no motion supported)\n"
+                  "Leave blank to cancel and return\n"
+                  "Press enter when done\n"
+                  "\nTODO: ")
+    curses.curs_set(1) # visible cursor
+
+    # surprise!  State machine.  (For text entry.)
+    new_text = ""
+    while True:
+        c = stdscr.getch()
+        if c in [curses.KEY_ENTER, ascii.LF]:
+            break
+        elif c == curses.KEY_RESIZE:
+            cs.resize()
+            continue
+        elif c == curses.KEY_MOUSE:
+            # not worth disabling mouse support here, but also ignore it
+            continue
+        elif c in [curses.KEY_BACKSPACE, ascii.DEL]:
+            if new_text == "":
+                continue
+            new_text = new_text[:-1]
+            row, col = stdscr.getyx()
+            stdscr.move(row, col - 1)
+            stdscr.delch()
+            continue
+        elif c < ord(' '):
+            continue
+
+        cc = chr(c)
+        stdscr.addch(cc)
+        new_text += cc
+        continue
+
+    curses.curs_set(0) # invisible cursor
+
+    if new_text != "":
+        cs.store.append(new_text)
+        pass
+
+    return 0, -1
 
 def curses_main(stdscr):
     cmds = [
         {"text": "(top of list)", "command": cmd_stub},
         {"text": "Help (press twice)", "command": cmd_help},
-        {"text": "Quit", "command": lambda _: exit(0)},
-        {"text": "Create new ", "command": cmd_stub},
+        {"text": "Quit", "command": cmd_quit},
+        {"text": "Create new ", "command": cmd_new},
     ]
     store = Storage(cmds)
 
@@ -84,7 +136,8 @@ def curses_main(stdscr):
                 if not same:
                     continue
 
-                lower, upper = cs.store.toggle(stdscr, cs.get_highlight_abs())
+                lower, upper = cs.store.toggle(stdscr, cs,
+                                               cs.get_highlight_abs())
                 upper = len(cs.store) if upper == -1 else upper
                 for r in range(lower, upper + 1):
                     cs.display_nth(r)
