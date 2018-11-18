@@ -74,6 +74,11 @@ class Storage:
         self.store(msg="Created new\n\n%s\n" % desc)
         return len(self.queue) - 1 + len(self.cmds)
 
+    def prepend(self, desc):
+        self.queue.insert(0, {"text": desc})
+        self.store(msg="Created new\n\n%s\n" % desc)
+        return len(self.queue) - 1 + len(self.cmds)
+
     def __init__(self, cmds=None):
         if cmds != None:
             self.cmds = cmds

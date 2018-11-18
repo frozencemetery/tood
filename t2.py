@@ -86,7 +86,7 @@ def cmd_new(stdscr, cs):
     curses.curs_set(0) # invisible cursor
 
     if new_text != "":
-        cs.store.append(new_text)
+        cs.store.prepend(new_text)
         pass
 
     return 0, -1
