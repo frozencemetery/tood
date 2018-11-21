@@ -7,7 +7,7 @@ import subprocess
 import sys
 
 from cstate import CState
-from storage import Storage
+from storage import Storage, cmd
 
 # if they ever decide to fix this...
 try:
@@ -60,6 +60,11 @@ def cmd_new(stdscr, cs):
     line = stdscr.getmaxyx()[0]
     return line - 1, line - 1
 
+def cmd_update(*args):
+    os.chdir(os.path.join(os.environ["HOME"], "tood"))
+    cmd("git", "pull")
+    exit(os.execlp("python3", "python3", sys.argv[0]))
+
 def click_here(click_col, cs, stdscr):
     idx = cs.get_highlight_abs()
 
@@ -91,6 +96,7 @@ def curses_main(stdscr):
     cmds = [
         {"text": "(top of list)", "command": cmd_stub},
         {"text": "Help (press twice)", "command": cmd_help},
+        {"text": "Update program", "command": cmd_update},
         {"text": "Quit", "command": cmd_quit},
         {"text": "Create new ", "command": cmd_new},
     ]
