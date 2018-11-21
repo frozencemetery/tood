@@ -195,6 +195,6 @@ class CState:
             continue
 
         curses.curs_set(0) # invisible cursor
-        return curses.getyx()[0], text
+        return stdscr.getyx()[0], text
 
     pass # end of class CState
