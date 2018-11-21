@@ -57,22 +57,39 @@ class Storage:
         return min(old_pos, new_pos) - 1, max(old_pos, new_pos) + 1
 
     def move(self, move_from, move_to):
-        # TODO this will explode if you move done stuff around and basically
-        # just needs to be rewritten
-        assert(move_from >= len(self.cmds))
-        assert(move_to >= len(self.cmds))
-        t = self.queue.pop(move_from - len(self.cmds))
-        self.queue.insert(move_to - len(self.cmds), t)
-        self.store(msg="Adjusted order of item\n\n%s\n" % t["text"])
-        return min(move_from, move_to), max(move_from, move_to)
+        g_from, g_to = move_from, move_to
 
-    def append(self, desc):
-        if desc == "": # allow empty string to abort
-            return -1
+        storelen = len(self)
+        if move_from >= storelen:
+            return move_from, move_to
+        move_to = min(move_to, storelen - 1)
 
-        self.queue.append({"text": desc})
-        self.store(msg="Created new\n\n%s\n" % desc)
-        return len(self.queue) - 1 + len(self.cmds)
+        cmdlen = len(self.cmds)
+        if move_from < cmdlen:
+            return move_from, move_to
+        move_to = max(move_to, cmdlen)
+        move_from -= cmdlen
+        move_to -= cmdlen
+
+        queuelen = len(self.queue)
+        if move_from < queuelen:
+            tqueue = self.queue
+            move_to = min(move_to, queuelen - 1)
+            pass
+        else:
+            tqueue = self.done
+            move_to = max(move_to, queuelen)
+            move_from -= queuelen
+            move_to -= queuelen
+            pass
+
+        if move_from == move_to:
+            return move_from, move_to
+
+        t = tqueue.pop(move_from)
+        tqueue.insert(move_to, t)
+        self.store(msg=f"Adjusted order of item\n\n{t['text']}\n")
+        return min(g_from, g_to), max(g_from, g_to)
 
     def prepend(self, desc):
         self.queue.insert(0, {"text": desc})
@@ -145,6 +162,7 @@ class Storage:
             return
         cmdlen = len(self.cmds)
         key -= cmdlen # TODO
+        assert(key >= 0)
         qlen = len(self.queue)
         if key < qlen:
             self.queue[key]["text"] = value
