@@ -64,21 +64,20 @@ def cmd_update(*args):
     cmd("git", "pull")
     exit(os.execlp("python3", "python3", sys.argv[0]))
 
-def click_here(click_col, cs, stdscr):
+def click_here(click_row, click_col, cs, stdscr):
     idx = cs.get_highlight_abs()
 
     if click_col > 3 and idx >= len(cs.store.cmds):
         # edit mode!
-        row, _ = stdscr.getyx() # TODO pass this in
         text = cs.store[idx]["text"]
-        stdscr.move(row, 4)
+        stdscr.move(click_row, 4)
         nr, newtext = cs.getline(stdscr, text, edge=idx == len(cs.store) - 1)
         if newtext != "" and newtext != text:
             cs.store[idx] = newtext
             pass
-        if nr != row:
+        if nr != click_row:
             cs.store.move(idx, nr + cs._offset)
-            for r in range(min(nr, row, 0), max(nr, row) + 1):
+            for r in range(min(nr, click_row, 0), max(nr, click_row) + 1):
                 cs.display_nth(r)
                 pass
             pass
@@ -137,7 +136,7 @@ def curses_main(stdscr):
                 if not same:
                     continue
 
-                click_here(col, cs, stdscr)
+                click_here(row, col, cs, stdscr)
                 continue
             continue
 
