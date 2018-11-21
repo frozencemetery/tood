@@ -25,7 +25,8 @@ helptext = "hi this is the help text\n" \
            "the ui is mostly finger/mouse driven\n" \
            "scrolling should just work\n" \
            "press once on a thing to select it\n" \
-           "press again to toggle it\n" \
+           "press on a selected checkbox to toggle it\n" \
+           "press on the selected text to edit it\n"
            "commands are at the top\n" \
            "press twice on them to do the thing\n" \
            "queue boundaries are in blue\n" \
