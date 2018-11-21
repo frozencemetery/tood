@@ -26,7 +26,7 @@ helptext = "hi this is the help text\n" \
            "scrolling should just work\n" \
            "press once on a thing to select it\n" \
            "press on a selected checkbox to toggle it\n" \
-           "press on the selected text to edit it\n"
+           "press on the selected text to edit it\n" \
            "commands are at the top\n" \
            "press twice on them to do the thing\n" \
            "queue boundaries are in blue\n" \
@@ -45,21 +45,20 @@ def cmd_quit(*args):
     exit(0)
 
 def cmd_new(stdscr, cs):
-    stdscr.erase()
-    stdscr.move(0, 0)
-    # TODO set colors on this
-    stdscr.addstr("Enter text for new TODO\n"
-                  "(Backspace supported, no motion supported)\n"
-                  "Leave blank to cancel and return\n"
-                  "Press enter when done\n"
-                  "\nTODO: ")
+    row, _ = stdscr.getyx()
+    stdscr.move(row + 1, 0)
+    stdscr.insertln()
+    stdscr.addstr("[ ] ")
 
     new_text = cs.getline(stdscr)
     if new_text != "":
         cs.store.prepend(new_text)
-        pass
-
-    return 0, -1
+        cs.set_highlight_local(row + 1)
+        return row, row + 1
+    stdscr.move(row + 1, 0)
+    stdscr.deleteln()
+    line = stdscr.getmaxyx()[0]
+    return line - 1, line - 1
 
 def click_here(click_col, cs, stdscr):
     idx = cs.get_highlight_abs()
@@ -142,14 +141,16 @@ def curses_main(stdscr):
                    srow >= len(cs.store.cmds) + len(cs.store.queue):
                     # you can't move that!  Or that!
                     continue
-                elif row >= len(cs.store.cmds) + len(cs.store.queue):
+                if row >= len(cs.store.cmds) + len(cs.store.queue):
                     # you can't put that there!
                     row = len(cs.store.cmds) + len(cs.store.queue) - 1
                     pass
-                elif row < len(cs.store.cmds):
+                if row < len(cs.store.cmds):
                     # or there!
                     row = len(cs.store.cmds)
                     pass
+                if srow == row:
+                    continue
 
                 cs.set_highlight_local(row - cs._offset)
 
