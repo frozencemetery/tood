@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+from binascii import hexlify
 import curses
 import os
 import sys
@@ -166,7 +167,7 @@ def main(stdscr):
         stdscr.move(row, 0)
         stdscr.deleteln()
 
-        desc = c if type(c) == str else curses.keyname(c).decode("utf8")
+        desc = hexlify(c.encode()) if type(c) == str else curses.keyname(c)
         stdscr.addstr(f"{datetime.now()}  {c}: {desc}\n")
         pass
     return
