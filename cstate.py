@@ -154,6 +154,7 @@ class CState:
         # surprise!  State machine.  (For text entry.)
         curses.curs_set(1) # visible cursor
         color = "EDGE_HIGHLIGHT" if edge else "HIGHLIGHT"
+        stdscr.addstr(text, COLOR_PAIRS[color]())
         while True:
             c = stdscr.get_wch()
             if c in [curses.KEY_ENTER, "\n", "\r", "\r\n"]:

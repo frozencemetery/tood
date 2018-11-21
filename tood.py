@@ -71,7 +71,7 @@ def click_here(click_col, cs, stdscr):
         # edit mode!
         row, _ = stdscr.getyx() # TODO pass this in
         text = cs.store[idx]["text"]
-        stdscr.move(row, 4 + len(text))
+        stdscr.move(row, 4)
         nr, newtext = cs.getline(stdscr, text, edge=idx == len(cs.store) - 1)
         if newtext != "" and newtext != text:
             cs.store[idx] = newtext
