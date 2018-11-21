@@ -165,7 +165,7 @@ class CState:
             elif c == curses.KEY_MOUSE:
                 # not worth disabling mouse support here, but also ignore it
                 continue
-            elif c in [curses.KEY_BACKSPACE, ascii.DEL]:
+            elif c in [curses.KEY_BACKSPACE, ascii.DEL, "^?"]:
                 if text == "":
                     continue
                 text = text[:-1]
