@@ -29,8 +29,7 @@ class CState:
         curses.curs_set(0) # invisible cursor
 
         # 1 is left click, 4 is scroll up, 5 is scroll down
-        curses.mousemask(curses.BUTTON1_PRESSED | curses.BUTTON1_RELEASED |
-                         curses.BUTTON1_CLICKED | curses.BUTTON4_PRESSED |
+        curses.mousemask(curses.BUTTON1_PRESSED | curses.BUTTON4_PRESSED |
                          curses.BUTTON5_PRESSED) # button5 defined above
         curses.mouseinterval(0) # waiting here makes everything really laggy
 
@@ -162,7 +161,22 @@ class CState:
                 self.resize()
                 continue
             elif c == curses.KEY_MOUSE:
-                # not worth disabling mouse support here, but also ignore it
+                # see comment in tood.py
+                try:
+                    _, _, row, _, bstate = curses.getmouse()
+                    pass
+                except Exception:
+                    continue
+
+                if bstate & curses.BUTTON4_PRESSED:
+                    cs.scroll_up()
+                    continue
+                if bstate & curses.BUTTON5_PRESSED:
+                    cs.scroll_down()
+                    continue
+                if bstate & curses.BUTTON1_PRESSED:
+                    curses.curs_set(0) # invisible cursor
+                    return row, text
                 continue
             elif c in [curses.KEY_BACKSPACE, "\x7f"]:
                 if text == "":
@@ -181,6 +195,6 @@ class CState:
             continue
 
         curses.curs_set(0) # invisible cursor
-        return text
+        return curses.getyx()[0], text
 
     pass # end of class CState

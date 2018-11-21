@@ -30,7 +30,7 @@ helptext = "hi this is the help text\n" \
            "commands are at the top\n" \
            "press twice on them to do the thing\n" \
            "queue boundaries are in blue\n" \
-           "drag items to move their priority\n" \
+           "when editing an item, click where it goes to move it\n" \
            "hope this helps\n" \
            "do anything to return"
 def cmd_help(stdscr, *args):
@@ -50,7 +50,7 @@ def cmd_new(stdscr, cs):
     stdscr.insertln()
     stdscr.addstr("[ ] ")
 
-    new_text = cs.getline(stdscr)
+    _, new_text = cs.getline(stdscr)
     if new_text != "":
         cs.store.prepend(new_text)
         cs.set_highlight_local(row + 1)
@@ -68,9 +68,15 @@ def click_here(click_col, cs, stdscr):
         row, _ = stdscr.getyx() # TODO pass this in
         text = cs.store[idx]["text"]
         stdscr.move(row, 4 + len(text))
-        newtext = cs.getline(stdscr, text, edge=idx == len(cs.store) - 1)
+        nr, newtext = cs.getline(stdscr, text, edge=idx == len(cs.store) - 1)
         if newtext != "" and newtext != text:
             cs.store[idx] = newtext
+            pass
+        if nr != row:
+            cs.store.move(idx, nr + cs._offset)
+            for r in range(min(nr, row, 0), max(nr, row) + 1):
+                cs.display_nth(r)
+                pass
             pass
         return
 
@@ -79,7 +85,7 @@ def click_here(click_col, cs, stdscr):
     for r in range(lower, upper + 1):
         cs.display_nth(r)
         pass
-    return
+    return None
 
 def curses_main(stdscr):
     cmds = [
@@ -122,50 +128,7 @@ def curses_main(stdscr):
             if bstate & curses.BUTTON5_PRESSED:
                 cs.scroll_down()
                 continue
-
             if bstate & curses.BUTTON1_PRESSED:
-                second = cs.set_highlight_local(row)
-                srow = row
-                continue
-            if bstate & curses.BUTTON1_RELEASED:
-                if srow == row and not second:
-                    continue
-                if srow == row:
-                    second = False
-                    click_here(col, cs, stdscr)
-                    continue
-
-                srow += cs._offset
-                row += cs._offset
-                if srow < len(cs.store.cmds) or \
-                   srow >= len(cs.store.cmds) + len(cs.store.queue):
-                    # you can't move that!  Or that!
-                    continue
-                if row >= len(cs.store.cmds) + len(cs.store.queue):
-                    # you can't put that there!
-                    row = len(cs.store.cmds) + len(cs.store.queue) - 1
-                    pass
-                if row < len(cs.store.cmds):
-                    # or there!
-                    row = len(cs.store.cmds)
-                    pass
-                if srow == row:
-                    continue
-
-                cs.set_highlight_local(row - cs._offset)
-
-                second = False
-                store.move(srow, row)
-                for r in range(srow, row + 1):
-                    cs.display_nth(r)
-                    pass
-                for r in range(row, srow + 1):
-                    cs.display_nth(r)
-                    pass
-                srow = None
-                continue
-            if bstate & curses.BUTTON1_CLICKED:
-                second = False
                 same = cs.set_highlight_local(row)
                 if not same:
                     continue
