@@ -64,6 +64,11 @@ def cmd_update(*args):
     cmd("git", "pull")
     exit(os.execlp("python3", "python3", sys.argv[0]))
 
+def cmd_redraw(stdscr, cs):
+    curses.flash()
+    stdscr.erase()
+    return 0, -1
+
 def click_here(click_row, click_col, cs, stdscr):
     idx = cs.get_highlight_abs()
 
@@ -95,6 +100,7 @@ def curses_main(stdscr):
         {"text": "(top of list)", "command": cmd_stub},
         {"text": "Help (press twice)", "command": cmd_help},
         {"text": "Update program", "command": cmd_update},
+        {"text": "Redraw screen", "command": cmd_redraw},
         {"text": "Quit", "command": cmd_quit},
         {"text": "Create new ", "command": cmd_new},
     ]
