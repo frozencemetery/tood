@@ -65,3 +65,9 @@ Originally I wanted to do this in Rust, but it's not available for Termux
 Actually tried this one; removed it in
 ce75f9b25eab8f26fc52875e3237d9057dc738a8.  Neither GitPython nor virtualenv
 are packaged for Termux.
+
+*** Drag items around
+
+Tried this too; removed it in f6c50f2babfd8d59677d37298cd6a934129219fc.
+Problem is that scroll events supersede any click-move-release paradigm we
+could have.  (And long-pressing just selects text.)
