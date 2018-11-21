@@ -1,5 +1,4 @@
 import curses
-from curses import ascii
 
 # if they ever decide to fix this...
 try:
@@ -157,7 +156,7 @@ class CState:
         color = "EDGE_HIGHLIGHT" if edge else "HIGHLIGHT"
         while True:
             c = stdscr.get_wch()
-            if c in [curses.KEY_ENTER, ascii.LF, "\n", "\r", "\r\n"]:
+            if c in [curses.KEY_ENTER, "\n", "\r", "\r\n"]:
                 break
             elif c == curses.KEY_RESIZE:
                 self.resize()
@@ -165,7 +164,7 @@ class CState:
             elif c == curses.KEY_MOUSE:
                 # not worth disabling mouse support here, but also ignore it
                 continue
-            elif c in [curses.KEY_BACKSPACE, ascii.DEL]:
+            elif c in [curses.KEY_BACKSPACE, "\x7f"]:
                 if text == "":
                     continue
                 text = text[:-1]
