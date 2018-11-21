@@ -18,8 +18,8 @@ FHS, just do
   ./tood.py
 #+END_SRC
 
-You need both python2 and git installed.  Prior to usage, you'll need to set
-up git (i.e., set user.name and user.email); otherwise, the git operations
+You need both python (3) and git installed.  Prior to usage, you'll need to
+set up git (i.e., set user.name and user.email); otherwise, the git operations
 will somewhat mysteriously bomb out.
 
 For mobile deployment, it's a bit more complicated.  It may work with other
@@ -46,7 +46,7 @@ letter in the future.
 
 *** tood.py
 
-This is the main program.  Run this; press =h= or =?= for help.
+This is the main program.  Run this; it's mouse-driven.
 
 *** debuglisten.py
 
