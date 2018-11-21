@@ -169,10 +169,10 @@ class CState:
                     continue
 
                 if bstate & curses.BUTTON4_PRESSED:
-                    cs.scroll_up()
+                    self.scroll_up()
                     continue
                 if bstate & curses.BUTTON5_PRESSED:
-                    cs.scroll_down()
+                    self.scroll_down()
                     continue
                 if bstate & curses.BUTTON1_PRESSED:
                     curses.curs_set(0) # invisible cursor
