@@ -80,10 +80,10 @@ class Storage:
         return len(self.queue) - 1 + len(self.cmds)
 
     def __init__(self, cmds=None):
-        if cmds != None:
+        if cmds is not None:
             self.cmds = cmds
             pass
-        
+
         self.storagedir = os.path.join(os.environ["HOME"], ".toodata")
         self.filename = "tood.json"
         self.filepath = os.path.join(self.storagedir, self.filename)
@@ -155,4 +155,3 @@ class Storage:
             pass
         self.store(msg="Edited: " + value)
         return
-        

@@ -48,11 +48,11 @@ class CState:
 
         text = self.store[n]["text"]
 
-        cmdlen = len(self.store.cmds)        
+        cmdlen = len(self.store.cmds)
         qlen = len(self.store.queue)
         done = " ->" if n < cmdlen else "[ ]" if n - cmdlen < qlen else "[X]"
 
-        self.stdscr.move(at, 0);
+        self.stdscr.move(at, 0)
         self.stdscr.clrtoeol()
 
         maxw = self.cols - 1
@@ -77,7 +77,7 @@ class CState:
         return
 
     def resize(self):
-        old_rows, old_cols = self.rows, self.cols
+        old_rows = self.rows
         self.rows, self.cols = self.stdscr.getmaxyx()
         self.stdscr.setscrreg(0, self.rows - 1)
 
@@ -104,7 +104,7 @@ class CState:
             self._highlight = self._offset
             self.display_nth(self._highlight)
             pass
-        
+
         self.display_nth(self.rows + self._offset - 1)
         return
 
@@ -138,7 +138,7 @@ class CState:
             pass
         elif self._highlight >= bot:
             self._highlight = bot
-            pass            
+            pass
 
         self.display_nth(oldh)
         self.display_nth(self._highlight)

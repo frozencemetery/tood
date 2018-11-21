@@ -1,9 +1,7 @@
 #!/usr/bin/python3
 
 import curses
-import json
 import os
-import subprocess
 import sys
 
 from cstate import CState
@@ -105,7 +103,6 @@ def curses_main(stdscr):
 
     cs = CState(stdscr, store, helptext)
     cs.display_store()
-    second = False
     while True:
         # UI
         c = stdscr.getch()
@@ -147,7 +144,7 @@ def curses_main(stdscr):
         # bad key
         curses.flash()
         continue
-    return        
-    
+    return
+
 if __name__ == "__main__":
     exit(curses.wrapper(curses_main))

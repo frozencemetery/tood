@@ -3,7 +3,6 @@
 from binascii import hexlify
 import curses
 import os
-import sys
 
 from datetime import datetime
 
@@ -119,7 +118,8 @@ def main(stdscr):
                              curses.BUTTON3_TRIPLE_CLICKED)
             break
         elif c == "3":
-            curses.mousemask(curses.ALL_MOUSE_EVENTS | curses.REPORT_MOUSE_POSITION)
+            curses.mousemask(curses.ALL_MOUSE_EVENTS |
+                             curses.REPORT_MOUSE_POSITION)
             break
         elif c == "4":
             curses.mousemask(curses.BUTTON1_PRESSED |
@@ -134,10 +134,10 @@ def main(stdscr):
         elif c == "6":
             curses.mousemask(curses.BUTTON1_CLICKED | curses.BUTTON1_RELEASED)
             break
-                
+
         stdscr.addstr("Come on, try again\n")
         continue
-    
+
     while True:
         stdscr.addstr("Listening (q to quit)...\n")
 
