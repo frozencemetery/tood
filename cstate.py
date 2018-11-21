@@ -55,16 +55,17 @@ class CState:
         self.stdscr.move(at, 0);
         self.stdscr.clrtoeol()
 
+        maxw = self.cols - 1
         if n == self._highlight and (n == 0 or n == len(self.store) - 1):
-            return self.stdscr.addnstr(f"{done} {text}", self.cols,
+            return self.stdscr.addnstr(f"{done} {text}", maxw,
                                        COLOR_PAIRS["EDGE_HIGHLIGHT"]())
         elif n == self._highlight:
-            return self.stdscr.addnstr(f"{done} {text}", self.cols,
+            return self.stdscr.addnstr(f"{done} {text}", maxw,
                                        COLOR_PAIRS["HIGHLIGHT"]())
         elif n == 0 or n == len(self.store) - 1:
-            return self.stdscr.addnstr(f"{done} {text}", self.cols,
+            return self.stdscr.addnstr(f"{done} {text}", maxw,
                                        COLOR_PAIRS["EDGE"]())
-        return self.stdscr.addnstr(f"{done} {text}", self.cols)
+        return self.stdscr.addnstr(f"{done} {text}", maxw)
 
     def display_store(self):
         self.stdscr.erase()
