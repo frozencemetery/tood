@@ -37,7 +37,7 @@ def cmd_help(stdscr, *args):
     stdscr.move(0, 0)
 
     stdscr.addstr(helptext)
-    stdscr.getch()
+    stdscr.getch() # doesn't matter, just call one
     return 0, -1
 
 def cmd_quit(*args):

@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 
 import curses
 import os
@@ -94,13 +94,13 @@ def main(stdscr):
         stdscr.addstr("5: Button 1 presses only\n")
         stdscr.addstr("6: Button 1 clicks and releases\n")
         stdscr.addstr("q: quit\n")
-        c = stdscr.getch()
-        stdscr.addstr("%s\n" % chr(c))
-        if c == ord("q"):
+        c = stdscr.get_wch()
+        stdscr.addstr("%s\n" % c)
+        if c == "q":
             exit(0)
-        elif c == ord("1"):
+        elif c == "1":
             break
-        elif c == ord("2"):
+        elif c == "2":
             curses.mousemask(curses.BUTTON1_PRESSED |
                              curses.BUTTON1_RELEASED |
                              curses.BUTTON1_CLICKED |
@@ -117,20 +117,20 @@ def main(stdscr):
                              curses.BUTTON3_DOUBLE_CLICKED |
                              curses.BUTTON3_TRIPLE_CLICKED)
             break
-        elif c == ord("3"):
+        elif c == "3":
             curses.mousemask(curses.ALL_MOUSE_EVENTS | curses.REPORT_MOUSE_POSITION)
             break
-        elif c == ord("4"):
+        elif c == "4":
             curses.mousemask(curses.BUTTON1_PRESSED |
                              curses.BUTTON2_PRESSED |
                              curses.BUTTON3_PRESSED |
                              curses.BUTTON4_PRESSED |
                              0x200000)
             break
-        elif c == ord("5"):
+        elif c == "5":
             curses.mousemask(curses.BUTTON1_PRESSED)
             break
-        elif c == ord("6"):
+        elif c == "6":
             curses.mousemask(curses.BUTTON1_CLICKED | curses.BUTTON1_RELEASED)
             break
                 
@@ -140,8 +140,8 @@ def main(stdscr):
     while True:
         stdscr.addstr("Listening (q to quit)...\n")
 
-        c = stdscr.getch()
-        if c == ord('q'):
+        c = stdscr.get_wch()
+        if c == 'q':
             break
 
         if c == curses.KEY_MOUSE:
@@ -166,18 +166,11 @@ def main(stdscr):
         stdscr.move(row, 0)
         stdscr.deleteln()
 
-        stdscr.addstr("%s  %d: %s\n" %
-                      (str(datetime.now()), c, curses.keyname(c)))
+        desc = c if type(c) == str else curses.keyname(c).decode("utf8")
+        stdscr.addstr(f"{datetime.now()}  {c}: {desc}\n")
         pass
     return
 
 if __name__ == "__main__":
-    # some distros make python be python3, which is... brave
-    if sys.version_info.major != 2:
-        print("I'm python2-only; trying to switch interpreters...")
-        # argv[0] needs to be the interpreter; python hides this, making
-        # argv[0] the program being interpreted
-        exit(os.execlp("python2", "python2", sys.argv[0]))
-
     curses.wrapper(main)
     pass

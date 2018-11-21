@@ -156,8 +156,8 @@ class CState:
         curses.curs_set(1) # visible cursor
         color = "EDGE_HIGHLIGHT" if edge else "HIGHLIGHT"
         while True:
-            c = stdscr.getch()
-            if c in [curses.KEY_ENTER, ascii.LF]:
+            c = stdscr.get_wch()
+            if c in [curses.KEY_ENTER, ascii.LF, "\n", "\r", "\r\n"]:
                 break
             elif c == curses.KEY_RESIZE:
                 self.resize()
@@ -173,13 +173,12 @@ class CState:
                 stdscr.move(row, col - 1)
                 stdscr.delch()
                 continue
-            elif c < ord(' '):
+            elif c < ' ':
                 continue
 
-            cc = chr(c)
             # addch seems to ignore the attrs passed...
-            stdscr.addstr(cc, COLOR_PAIRS[color]())
-            text += cc
+            stdscr.addstr(c, COLOR_PAIRS[color]())
+            text += c
             continue
 
         curses.curs_set(0) # invisible cursor
