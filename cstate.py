@@ -1,4 +1,5 @@
 import curses
+from curses import ascii
 
 # if they ever decide to fix this...
 try:
@@ -149,5 +150,39 @@ class CState:
 
     def get_highlight_abs(self):
         return self._highlight
+
+    def getline(self, stdscr, text="", edge=False):
+        # surprise!  State machine.  (For text entry.)
+        curses.curs_set(1) # visible cursor
+        color = "EDGE_HIGHLIGHT" if edge else "HIGHLIGHT"
+        while True:
+            c = stdscr.getch()
+            if c in [curses.KEY_ENTER, ascii.LF]:
+                break
+            elif c == curses.KEY_RESIZE:
+                self.resize()
+                continue
+            elif c == curses.KEY_MOUSE:
+                # not worth disabling mouse support here, but also ignore it
+                continue
+            elif c in [curses.KEY_BACKSPACE, ascii.DEL]:
+                if text == "":
+                    continue
+                text = text[:-1]
+                row, col = stdscr.getyx()
+                stdscr.move(row, col - 1)
+                stdscr.delch()
+                continue
+            elif c < ord(' '):
+                continue
+
+            cc = chr(c)
+            # addch seems to ignore the attrs passed...
+            stdscr.addstr(cc, COLOR_PAIRS[color]())
+            text += cc
+            continue
+
+        curses.curs_set(0) # invisible cursor
+        return text
 
     pass # end of class CState

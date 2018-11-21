@@ -1,8 +1,6 @@
 #!/usr/bin/python3
 
 import curses
-from curses import ascii
-
 import json
 import os
 import subprocess
@@ -54,46 +52,29 @@ def cmd_new(stdscr, cs):
                   "Leave blank to cancel and return\n"
                   "Press enter when done\n"
                   "\nTODO: ")
-    curses.curs_set(1) # visible cursor
 
-    # surprise!  State machine.  (For text entry.)
-    new_text = ""
-    while True:
-        c = stdscr.getch()
-        if c in [curses.KEY_ENTER, ascii.LF]:
-            break
-        elif c == curses.KEY_RESIZE:
-            cs.resize()
-            continue
-        elif c == curses.KEY_MOUSE:
-            # not worth disabling mouse support here, but also ignore it
-            continue
-        elif c in [curses.KEY_BACKSPACE, ascii.DEL]:
-            if new_text == "":
-                continue
-            new_text = new_text[:-1]
-            row, col = stdscr.getyx()
-            stdscr.move(row, col - 1)
-            stdscr.delch()
-            continue
-        elif c < ord(' '):
-            continue
-
-        cc = chr(c)
-        stdscr.addch(cc)
-        new_text += cc
-        continue
-
-    curses.curs_set(0) # invisible cursor
-
+    new_text = cs.getline(stdscr)
     if new_text != "":
         cs.store.prepend(new_text)
         pass
 
     return 0, -1
 
-def click_here(cs, stdscr):
-    lower, upper = cs.store.toggle(stdscr, cs, cs.get_highlight_abs())
+def click_here(click_col, cs, stdscr):
+    idx = cs.get_highlight_abs()
+
+    if click_col > 3 and idx >= len(cs.store.cmds):
+        # edit mode!
+        row, _ = stdscr.getyx() # TODO pass this in
+        text = cs.store[idx]["text"]
+        stdscr.move(row, 4 + len(text))
+        newtext = cs.getline(stdscr, text, edge=idx == len(cs.store) - 1)
+        if newtext != "" and newtext != text:
+            cs.store[idx] = newtext
+            pass
+        return
+
+    lower, upper = cs.store.toggle(stdscr, cs, idx)
     upper = len(cs.store) if upper == -1 else upper
     for r in range(lower, upper + 1):
         cs.display_nth(r)
@@ -147,11 +128,11 @@ def curses_main(stdscr):
                 srow = row
                 continue
             if bstate & curses.BUTTON1_RELEASED:
+                if srow == row and not second:
+                    continue
                 if srow == row:
-                    if second:
-                        second = False
-                        click_here(cs, stdscr)
-                        pass
+                    second = False
+                    click_here(col, cs, stdscr)
                     continue
 
                 srow += cs._offset
@@ -187,7 +168,7 @@ def curses_main(stdscr):
                 if not same:
                     continue
 
-                click_here(cs, stdscr)
+                click_here(col, cs, stdscr)
                 continue
             continue
 

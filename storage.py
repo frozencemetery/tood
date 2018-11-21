@@ -44,14 +44,14 @@ class Storage:
         if n < len(self.queue):
             t = self.queue.pop(n)
             self.done.insert(0, t)
-            new_pos = len(self.queue)
+            new_pos = len(self.queue) + len(self.cmds)
             self.store(msg="Completed item\n\n%s\n" % t["text"])
             pass
         else:
             n -= len(self.queue)
             t = self.done.pop(n)
             self.queue.append(t)
-            new_pos = len(self.queue)
+            new_pos = len(self.queue) + len(self.cmds)
             self.store(msg="Un-completed item\n\n%s\n" % t["text"])
             pass
         return min(old_pos, new_pos) - 1, max(old_pos, new_pos) + 1
