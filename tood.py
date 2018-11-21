@@ -81,7 +81,7 @@ def click_here(click_row, click_col, cs, stdscr):
             cs.store[idx] = newtext
             pass
         if nr != click_row:
-            cs.store.move(idx, nr + cs._offset)
+            cs.store.move(idx, nr + cs._offset) # TODO
             for r in range(min(nr, click_row, 0), max(nr, click_row) + 1):
                 cs.display_nth(r)
                 pass

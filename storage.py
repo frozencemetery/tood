@@ -160,16 +160,18 @@ class Storage:
             raise TypeError
         if value == "": # abort on empty string
             return
+
         cmdlen = len(self.cmds)
-        key -= cmdlen # TODO
-        assert(key >= 0)
+        key -= cmdlen
+        if key <= 0:
+            return
+
         qlen = len(self.queue)
         if key < qlen:
             self.queue[key]["text"] = value
             pass
         else:
-            key -= qlen
-            self.done[key]["text"] = value
+            self.done[key - qlen]["text"] = value
             pass
         self.store(msg="Edited: " + value)
         return
