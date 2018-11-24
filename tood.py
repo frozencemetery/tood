@@ -71,11 +71,11 @@ def cmd_redraw(stdscr, cs):
 
 def click_here(click_row, click_col, cs, stdscr):
     idx = cs.get_highlight_abs()
+    text = cs.store[idx]["text"]
+    stdscr.move(click_row, 4)
 
     if click_col > 3 and idx >= len(cs.store.cmds):
         # edit mode!
-        text = cs.store[idx]["text"]
-        stdscr.move(click_row, 4)
         nr, newtext = cs.getline(stdscr, text, edge=idx == len(cs.store) - 1)
         if newtext != "" and newtext != text:
             cs.store[idx] = newtext
