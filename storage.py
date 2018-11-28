@@ -163,7 +163,7 @@ class Storage:
 
         cmdlen = len(self.cmds)
         key -= cmdlen
-        if key <= 0:
+        if key < 0:
             return
 
         qlen = len(self.queue)
