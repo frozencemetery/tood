@@ -1,19 +1,5 @@
 import json
 import os
-import subprocess
-
-def cmd(*args):
-    # try/except is faster than hasattr() only in the success case
-    try:
-        cmd.devnull
-        pass
-    except AttributeError:
-        cmd.devnull = open(os.devnull, "w")
-        pass
-
-    return subprocess.check_call(args, stdout=cmd.devnull,
-                                 stderr=subprocess.STDOUT)
-
 
 # Commands have a normal "text" field and a "command" field, which is a
 # function that does ~something~ and returns the updated range.
@@ -31,8 +17,6 @@ class Storage:
         with open(filepath, "w") as f:
             json.dump(whole, f, indent=4, separators=(",", ": "))
             pass
-        cmd("git", "add", filepath)
-        cmd("git", "commit", "-m", msg)
         return
 
     def toggle(self, stdscr, cs, n):
@@ -109,13 +93,6 @@ class Storage:
             os.mkdir(self.storagedir)
             pass
         os.chdir(self.storagedir)
-
-        try:
-            cmd("git", "status")
-            pass
-        except subprocess.CalledProcessError:
-            cmd("git", "init", ".")
-            pass
 
         if not os.path.exists(self.filename):
             self.queue = [{"text": "Make some TOOD"}]

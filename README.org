@@ -6,9 +6,8 @@ quality software and I may never need it to be anything more.
 The program needs to run on my phone.  The easiest way to do this is Python
 under Termux.
 
-The list is backed on version control (git) and all operations trigger a
-commit, so data loss is unlikely.
-
+The list is stored as a flat file, and there's no way to delete items, so data
+loss is unlikely.
 ** Running it
 
 If you're on a normal operating system that installs in accordance with the

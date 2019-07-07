@@ -2,10 +2,11 @@
 
 import curses
 import os
+import subprocess
 import sys
 
 from cstate import CState
-from storage import Storage, cmd
+from storage import Storage
 
 # if they ever decide to fix this...
 try:
@@ -14,6 +15,18 @@ try:
 except AttributeError:
     curses.BUTTON5_PRESSED = 0x200000
     pass
+
+def cmd(*args):
+    # try/except is faster than hasattr() only in the success case
+    try:
+        cmd.devnull
+        pass
+    except AttributeError:
+        cmd.devnull = open(os.devnull, "w")
+        pass
+
+    return subprocess.check_call(args, stdout=cmd.devnull,
+                                 stderr=subprocess.STDOUT)
 
 def cmd_stub(*args):
     curses.flash()
