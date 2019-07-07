@@ -59,6 +59,13 @@ This is a simple event listener for curses.  It's useful for determining what
 Originally I wanted to do this in Rust, but it's not available for Termux
 (yet?).
 
+*** Use git for storage
+
+Actually tried this one; removed it in
+b6cbe84b5f7f4c348cbc01a3ef5e0da0a9c46acb.  Git is a bad tool for this because
+the size ballooned - probably because each commit creates a new file, but it
+was overkill anyway since we have no delete verb.
+
 *** Use a git library
 
 Actually tried this one; removed it in
