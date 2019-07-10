@@ -8,10 +8,18 @@ except AttributeError:
     curses.BUTTON5_PRESSED = 0x200000
     pass
 
+# Curses makes highlighting a problem.  Each foreground/background/textcolor
+# combination must be registered as a separate "color" within curses, and the
+# total number is capped.  So currently, a character can be: on an edge,
+# highlighted, or part of a deadline - or, more importantly, any subseteq of
+# those.  Rather than having nine color pairs, leave it at (2 * 2 + 1) for now
+# - maybe it'll get fixed if live highlihting of text entry ever happens.
+# Probably not, though.
 COLOR_PAIRS = {
     "HIGHLIGHT": lambda: curses.color_pair(1),
     "EDGE": lambda: curses.color_pair(2),
     "EDGE_HIGHLIGHT": lambda: curses.color_pair(3),
+    "DEADLINE": lambda: curses.color_pair(4),
 }
 
 class CState:
@@ -37,6 +45,7 @@ class CState:
         curses.init_pair(1, 0, 0xb)
         curses.init_pair(2, 0xc, -1)
         curses.init_pair(3, 0xc, 0xb)
+        curses.init_pair(4, 0xa, -1)
         pass
 
     def display_nth(self, n):
@@ -65,6 +74,12 @@ class CState:
         elif n == 0 or n == len(self.store) - 1:
             return self.stdscr.addnstr(f"{done} {text}", maxw,
                                        COLOR_PAIRS["EDGE"]())
+        elif done == "[ ]" and " by " in text:
+            idx = text.index(" by ")
+            task = text[:idx]
+            due = text[idx:]
+            self.stdscr.addnstr(f"{done} {task}", maxw)
+            return self.stdscr.addnstr(due, maxw, COLOR_PAIRS["DEADLINE"]())
         return self.stdscr.addnstr(f"{done} {text}", maxw)
 
     def display_store(self):
