@@ -128,10 +128,32 @@ def curses_main(stdscr):
             cs.resize()
             continue
         elif c in [curses.KEY_DOWN, 14]: # 14 is C-n
-            cs.scroll_down()
+            row = cs.get_highlight_local()
+            if row >= cs.rows - 1:
+                cs.scroll_down()
+                pass
+            else:
+                row += 1
+                pass
+            row = min(row, cs.rows - 1)
+
+            cs.set_highlight_local(row)
             continue
         elif c in [curses.KEY_UP, 16]: # 16 is C-p
-            cs.scroll_up()
+            row = cs.get_highlight_local()
+            if row <= 0:
+                cs.scroll_up()
+                pass
+            else:
+                row -= 1
+                pass
+            row = max(row, 0)
+
+            cs.set_highlight_local(row)
+            continue
+        elif c in [curses.KEY_ENTER, 0x0a]: # 0x0a is \n
+            row = cs.get_highlight_local()
+            click_here(row, 5, cs, stdscr)
             continue
         elif c == curses.KEY_MOUSE:
             # sometimes curses will fail this call!  If you send it input it

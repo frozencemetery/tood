@@ -165,6 +165,9 @@ class CState:
     def get_highlight_abs(self):
         return self._highlight
 
+    def get_highlight_local(self):
+        return self._highlight - self._offset
+
     def getline(self, stdscr, text="", edge=False):
         # surprise!  State machine.  (For text entry.)
         curses.curs_set(1) # visible cursor
